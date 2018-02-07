@@ -1,10 +1,18 @@
 package com.chul.chul_eatworldcup;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +35,8 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
+    private LocationManager locationManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //setTheme(R.style.AppTheme);
@@ -36,6 +46,33 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         Log.d("abcTest","Main??");
+
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
+
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_COARSE_LOCATION)){
+                Toast.makeText(MainActivity.this,"권한이 필요해애",Toast.LENGTH_SHORT).show();
+            }
+
+            //get auth
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},1);
+//            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},2);
+
+        }
+        else{
+            //already get auth
+
+            Log.d("aTest","already get auth");
+
+
+            locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,2000,10,mLocationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,2000,10,mLocationListener);
+        }
+
+
+
+
 
 
         final int img[] = {R.drawable.kor,R.drawable.jap,R.drawable.chi,R.drawable.asia,R.drawable.eng,R.drawable.dduk,R.drawable.chicken};
@@ -78,6 +115,91 @@ public class MainActivity extends Activity {
                 view.setBackgroundColor(getResources().getColor(R.color.colorLightSkyBlue));
             }
         });
+    }
+
+    private final LocationListener mLocationListener = new LocationListener() {
+
+
+        @Override
+        public void onLocationChanged(Location location) {
+
+//            if(location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
+//                double longitude = location.getLongitude();
+//                double latitude = location.getLatitude();
+//                float accuracy = location.getAccuracy();
+//
+//                Log.d("aTest","where ?= GPS_PROVIDER");
+//
+//            }else{
+//                double longitude = location.getLongitude();
+//                double latitude = location.getLatitude();
+//                float accuracy = location.getAccuracy();
+//
+//                Log.d("aTest","where ?= NETWORK_PROVIDER");
+//            }
+//            String msg = "New Lati: "+location.getLatitude() + "New Longti: "+location.getLongitude();
+//
+//            Toast.makeText(getBaseContext(),msg,Toast.LENGTH_LONG).show();
+//            Log.d("aTest","msg = "+msg);
+//
+//
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+
+            Toast.makeText(getBaseContext(),"GPS is turn off!!!",Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            Toast.makeText(getBaseContext(),"GPS is turn on!!",Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            Toast.makeText(getBaseContext(),"GPS status change!!",Toast.LENGTH_SHORT).show();
+
+            Log.d("aTest","onStatusChang");
+        }
+
+    };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode){
+            case 1:
+                if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                    //get auth ok?
+
+                    Log.d("aTest","onReqPermission code=1");
+                    Intent intent = new Intent(MainActivity.this,MainActivity.class);
+                    startActivity(intent);
+
+                }else{
+                    Toast.makeText(MainActivity.this,"권한이 없으면 안되는데...",Toast.LENGTH_SHORT).show();
+                }
+
+            /*case 2:
+                if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                    //get auth ok?
+                }else{
+                    Toast.makeText(First.this,"권한이 없으면 안되는데...",Toast.LENGTH_SHORT).show();
+                }
+*/
+                return;
+
+
+
+        }
+
+
     }
 
     @Override

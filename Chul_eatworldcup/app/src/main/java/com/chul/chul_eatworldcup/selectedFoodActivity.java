@@ -6,11 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.media.Image;
 import android.os.Bundle;
-import android.text.Layout;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,9 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * Created by leeyc on 2018. 1. 4..
@@ -121,8 +115,11 @@ public class selectedFoodActivity extends Activity {
             btn_find.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                }
+                    Intent intent3 = new Intent(selectedFoodActivity.this,SearchJava.class);
+                    intent3.putExtra("foodName",tourtv1.getText().toString());
+                    intent3.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivity(intent3);
+                    }
             });
 
         }
@@ -265,8 +262,6 @@ public class selectedFoodActivity extends Activity {
             dialog.setTitle(num+"강!");
             dialog.show();
         }
-
-
     }
 
 }

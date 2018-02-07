@@ -1,14 +1,22 @@
 package com.chul.chul_eatworldcup;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,7 +41,6 @@ public class SplashActivity extends Activity {
     private int PERIOD = 100;
     private Timer mTimer = new Timer();
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +51,6 @@ public class SplashActivity extends Activity {
 
         Log.d("abcTest",TestSpalsh);
     }
-
 
     private class GetContacts extends AsyncTask<String, Void, Void> {
 
