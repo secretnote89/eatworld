@@ -22,6 +22,7 @@ import com.nhn.android.maps.NMapView;
 import com.nhn.android.maps.maplib.NGeoPoint;
 import com.nhn.android.maps.nmapmodel.NMapError;
 import com.nhn.android.maps.nmapmodel.NMapPlacemark;
+import com.nhn.android.maps.overlay.NMapPOIdata;
 import com.nhn.android.maps.overlay.NMapPOIitem;
 import com.nhn.android.mapviewer.overlay.NMapMyLocationOverlay;
 import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
@@ -34,7 +35,7 @@ import java.util.Collections;
  * Created by leeyc on 2018. 1. 12..
  */
 
-public class restaurantResult extends Activity{
+public class restaurantResult extends NMapActivity{
     private static final String CLIENT_ID = "wLIIkD1v3F7aYIpTjdXF";//"BDfRJ_qbTvaVbD3QdC6Y";
     private static final String clientSecret = "CIMd9Lu_vl";//"4fwk2LFzPr";
 
@@ -65,7 +66,7 @@ public class restaurantResult extends Activity{
     private static final String KEY_TRAFFIC_MODE = "NMapViewer.trafficMode";
     private static final String KEY_BICYCLE_MODE = "NMapViewer.bicycleMode";
 
-    private static final boolean DEBUG = false;
+    private static boolean DEBUG = false;
 
     boolean testChk = false;
     private NMapPOIitem mFloatingPOIitem;
@@ -83,6 +84,53 @@ public class restaurantResult extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.test);
 
+        Log.d("abcdTest","rest.java onCreate");
+
+
+        /// get previous data
+
+        ArrayList<restaurantList>restList;
+
+
+        Intent gintent = getIntent();
+
+        restList = (ArrayList<restaurantList>)gintent.getSerializableExtra("resList");
+        double mlati = gintent.getDoubleExtra("myLati",0);
+        double mlongti = gintent.getDoubleExtra("myLongti",0);
+
+        Log.d("abcdTest","nGeoPoint lati = "+mlati);
+
+        restList.remove(0);
+
+        Collections.shuffle(restList);
+
+        rtv1 = (TextView)findViewById(R.id.rtv1);
+        Log.d("abcdTest",restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
+        //rtv1.setText(restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
+        rtv1.setText(restList.get(0).getResNM());
+        // finish();
+
+        int x = Integer.parseInt(restList.get(0).getResMapX());
+        int y = Integer.parseInt(restList.get(0).getResMapY());
+
+
+        Log.d("abcTest","x = "+x);
+        Log.d("abcTest","y = "+y);
+
+        GeoPoint oKA = new GeoPoint(x,y);
+        GeoPoint oGeo = GeoTrans.convert(GeoTrans.KATEC, GeoTrans.GEO, oKA);
+        Double lat = oGeo.getY() * 1E6;
+        Double lng = oGeo.getX() * 1E6;
+        GeoPoint oLatLng = new GeoPoint(lat.intValue(), lng.intValue());  // 맵뷰에서 사용가능한 좌표계
+
+
+
+        double lati = lat;
+        double longti = lng;
+
+
+        Log.d("abcTest","lati = "+lat);
+        Log.d("abcTest","longti = "+longti);
         /////
 
         MapContainer = (LinearLayout)this.findViewById(R.id.MapContainer);
@@ -97,6 +145,9 @@ public class restaurantResult extends Activity{
         MapContainer.addView(mMapView);
         // initialize map view
         mMapView.setClickable(true);
+
+        // set data provider listener
+        super.setMapDataProviderListener(onDataProviderListener);
 
         // register listener for map state changes
         mMapView.setOnMapStateChangeListener(onMapViewStateChangeListener);
@@ -113,17 +164,6 @@ public class restaurantResult extends Activity{
         mMapLocationManager.enableMyLocation(true);
         mMapLocationManager.setOnLocationChangeListener(onMyLocationChangeListener);
 
-        ////
-        NMapActivity nMapActivity = new NMapActivity() {
-            @Override
-            public void setMapDataProviderListener(OnDataProviderListener onDataProviderListener) {
-                super.setMapDataProviderListener(onDataProviderListener);
-            }
-        };
-
-
-        // set data provider listener
-        nMapActivity.setMapDataProviderListener(onDataProviderListener);
         testChk =true;
 
         // create overlay manager
@@ -131,44 +171,59 @@ public class restaurantResult extends Activity{
 
         int markerId = NMapPOIflagType.PIN;
 
-        // create my location overlay
-        mMyLocationOverlay = mOverlayManager.createMyLocationOverlay(mMapLocationManager, mMapCompassManager);
 
         // compass manager
         mMapCompassManager = new NMapCompassManager(this);
 
+        // create my location overlay
+        mMyLocationOverlay = mOverlayManager.createMyLocationOverlay(mMapLocationManager, mMapCompassManager);
 
 
+// set POI data
+        NMapPOIdata poiData = new NMapPOIdata(1, mMapViewerResourceProvider);
+        poiData.beginPOIdata(1);
+        poiData.addPOIitem(lati, longti, restList.get(0).getResNM(), markerId, 0);
+        poiData.endPOIdata();
+
+// create POI data overlay
+        NMapPOIdataOverlay poiDataOverlay = mOverlayManager.createPOIdataOverlay(poiData, null);
 
 
-        Log.d("abcdTest","rest.java onCreate");
+        // show all POI data
+        poiDataOverlay.showAllPOIdata(0);
 
+        // set event listener to the overlayr
+        poiDataOverlay.setOnStateChangeListener(onPOIdataStateChangeListener);
 
-        /// get previous data
-
-        ArrayList<restaurantList>restList;
-
-        Intent gintent = getIntent();
-
-        restList = (ArrayList<restaurantList>)gintent.getSerializableExtra("resList");
-
-        Log.d("abcdTest","restaurent Activity");
-
-        restList.remove(0);
-
-        Collections.shuffle(restList);
-
-        rtv1 = (TextView)findViewById(R.id.rtv1);
-        Log.d("abcdTest",restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
-        //rtv1.setText(restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
-        rtv1.setText(restList.get(0).getResNM());
-       // finish();
-
-
-
-
+        DEBUG=true;
 
     }
+
+    /* POI data State Change Listener*/
+    private final NMapPOIdataOverlay.OnStateChangeListener onPOIdataStateChangeListener = new NMapPOIdataOverlay.OnStateChangeListener() {
+
+        @Override
+        public void onCalloutClick(NMapPOIdataOverlay poiDataOverlay, NMapPOIitem item) {
+            if (DEBUG) {
+                Log.d("abcdTest", "onCalloutClick: title=" + item.getTitle());
+            }
+
+            // [[TEMP]] handle a click event of the callout
+            Toast.makeText(restaurantResult.this, "onCalloutClick: " + item.getTitle(), Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onFocusChanged(NMapPOIdataOverlay poiDataOverlay, NMapPOIitem item) {
+            if (DEBUG) {
+                if (item != null) {
+                    Log.d("abcdTest", "onFocusChanged: " + item.toString());
+                } else {
+                    Log.d("abcdTest", "onFocusChanged: ");
+                }
+            }
+        }
+    };
+
 
 
     private boolean mIsMapEnlared = false;

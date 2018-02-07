@@ -260,9 +260,10 @@ public class SearchJava extends NMapActivity{
             nGeoPoint= mMapLocationManager.getMyLocation();
 
             Log.d("abcTest","my Loc = "+nGeoPoint.getLatitude()+"long = "+nGeoPoint.getLongitude());
-            if(testChk)
-                findPlacemarkAtLocation(nGeoPoint.getLongitude(),nGeoPoint.getLatitude());
-
+            if(testChk) {
+                findPlacemarkAtLocation(nGeoPoint.getLongitude(), nGeoPoint.getLatitude());
+                testChk = false;
+            }
             if (mMapController != null) {
                 mMapController.animateTo(myLocation);
             }
@@ -410,8 +411,19 @@ public class SearchJava extends NMapActivity{
 
                 Intent intent = new Intent(SearchJava.this,restaurantResult.class);
                 intent.putExtra("resList",resList);
+                intent.putExtra("myLati",nGeoPoint.getLatitude());
+                intent.putExtra("myLongti",nGeoPoint.getLongitude());
 
-                ///startActivity(intent);
+                //mMapView.setOnMapStateChangeListener(null);
+                setMapDataProviderListener(null);
+
+                mMapLocationManager.enableMyLocation(false);
+                mMapLocationManager.setOnLocationChangeListener(null);
+
+                stopMyLocation();
+
+
+                startActivity(intent);
 
                 runOnUiThread(new Runnable() {
                     @Override
