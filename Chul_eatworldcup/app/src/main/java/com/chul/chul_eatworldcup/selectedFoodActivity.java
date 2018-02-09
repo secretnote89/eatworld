@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import static com.chul.chul_eatworldcup.MainActivity.dong;
+import static com.chul.chul_eatworldcup.MainActivity.lati;
+import static com.chul.chul_eatworldcup.MainActivity.longti;
 
 /**
  * Created by leeyc on 2018. 1. 4..
@@ -80,6 +85,9 @@ public class selectedFoodActivity extends Activity {
         gridFoodName_sef=intent_sef.getStringArrayListExtra("gridFoodName"); ///shuffled foodname
         final int number = intent_sef.getIntExtra("num",0);
 
+        Log.d("abcTest","selectedFoodActivity lati ="+lati);
+        Log.d("abcTest","selectedFoodActivity longti ="+longti);
+        Log.d("abcTest","selectedFoodActivity dong ="+dong);
         if (number == 1){
             // Go To Final Food Selected
 

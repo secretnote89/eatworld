@@ -1,6 +1,5 @@
 package com.chul.chul_eatworldcup;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,10 +8,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nhn.android.maps.NMapActivity;
@@ -37,6 +32,10 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import static com.chul.chul_eatworldcup.MainActivity.dong;
+import static com.chul.chul_eatworldcup.MainActivity.lati;
+import static com.chul.chul_eatworldcup.MainActivity.longti;
+
 /**
  * Created by leeyc on 2017. 12. 20..
  */
@@ -46,7 +45,7 @@ public class SearchJava extends NMapActivity{
     private static final String clientSecret = "CIMd9Lu_vl";//"4fwk2LFzPr";
 
     String foodname;
-    String dong="test";
+    ///String dong="test";
     ArrayList<restaurantList>resList = new ArrayList<>();
 
     ///NMAP
@@ -57,7 +56,7 @@ public class SearchJava extends NMapActivity{
     NMapCompassManager mMapCompassManager;
     private SharedPreferences mPreferences;
 
-    private static final NGeoPoint NMAP_LOCATION_DEFAULT = new NGeoPoint(126.978371, 37.5666091);
+    private static final NGeoPoint NMAP_LOCATION_DEFAULT = new NGeoPoint(longti, lati);
     private static final int NMAP_ZOOMLEVEL_DEFAULT = 11;
     private static final int NMAP_VIEW_MODE_DEFAULT = NMapView.VIEW_MODE_VECTOR;
     private static final boolean NMAP_TRAFFIC_MODE_DEFAULT = false;
@@ -78,7 +77,7 @@ public class SearchJava extends NMapActivity{
     private NMapOverlayManager mOverlayManager;
 
     private NMapMyLocationOverlay mMyLocationOverlay;
-    private MapContainerView mMapContainerView;
+   //// private MapContainerView mMapContainerView;
 
     NGeoPoint nGeoPoint = new NGeoPoint();
 
@@ -87,22 +86,22 @@ public class SearchJava extends NMapActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.search_test);
-
+        Log.d("abcTest","selectedFoodActivity dong ="+dong);
         // create map view
         mMapView = new NMapView(this);
 
         // set Client ID for Open MapViewer Library
         mMapView.setClientId(CLIENT_ID);
 
-        // 생성된 네이버 지도 객체를 LinearLayout에 추가시킨다.
         // initialize map view
-        mMapView.setClickable(true);
+        ///mMapView.setClickable(true);
+        ///20180208_get dong without get map
 
         // set data provider listener
         super.setMapDataProviderListener(onDataProviderListener);
         // register listener for map state changes
         mMapView.setOnMapStateChangeListener(onMapViewStateChangeListener);
-        mMapView.setOnMapViewTouchEventListener(onMapViewTouchEventListener);
+        ///mMapView.setOnMapViewTouchEventListener(onMapViewTouchEventListener);
 
         // use map controller to zoom in/out, pan and set map center, zoom level etc.
         mMapController = mMapView.getMapController();
@@ -130,19 +129,18 @@ public class SearchJava extends NMapActivity{
         // compass manager
         mMapCompassManager = new NMapCompassManager(this);
 
+
+        ///
         ////
         Intent getintent = getIntent();
         foodname= getintent.getStringExtra("foodName");
 
         Log.d("abcTest","foodname = "+foodname);
-
-        Log.d("abcTest","onCreate");
-
     }
 
-    private boolean mIsMapEnlared = false;
+       private boolean mIsMapEnlared = false;
 
-        private void restoreInstanceState() {
+    private void restoreInstanceState() {
         mPreferences = getPreferences(MODE_PRIVATE);
 
         int longitudeE6 = mPreferences.getInt(KEY_CENTER_LONGITUDE, NMAP_LOCATION_DEFAULT.getLongitudeE6());
@@ -153,9 +151,9 @@ public class SearchJava extends NMapActivity{
         boolean bicycleMode = mPreferences.getBoolean(KEY_BICYCLE_MODE, NMAP_BICYCLE_MODE_DEFAULT);
 
         mMapController.setMapViewMode(viewMode);
-        mMapController.setMapViewTrafficMode(trafficMode);
-        mMapController.setMapViewBicycleMode(bicycleMode);
-        mMapController.setMapCenter(new NGeoPoint(longitudeE6, latitudeE6), level);
+        ///mMapController.setMapViewTrafficMode(trafficMode);
+        ///mMapController.setMapViewBicycleMode(bicycleMode);
+        mMapController.setMapCenter(new NGeoPoint(longti, lati), level);
 
         if (mIsMapEnlared) {
             mMapView.setScalingFactor(2.0F);
@@ -177,7 +175,7 @@ public class SearchJava extends NMapActivity{
                     + ((placeMark != null) ? placeMark.toString() : null));
             dong = (placeMark != null) ? placeMark.toString() : null;
 
-            if(!(dong.equals("test"))&& dong!=null){
+            if(dong!=null&& !(dong.equals("test"))){
                 gofind();
             }
 
@@ -213,7 +211,12 @@ public class SearchJava extends NMapActivity{
 
             if (errorInfo == null) { // success
                 // restore map view state such as map center position and zoom level.
+
+                Log.d("abcTest","in onMapViewStateCh~ onMapInitHandler ");
+
                 restoreInstanceState();
+                findPlacemarkAtLocation(longti, lati);
+                Log.d("abcTest","after findPlaceMark");
 
             } else { // fail
                 Log.e("abcTest", "onFailedToInitializeWithError: " + errorInfo.toString());
@@ -257,11 +260,9 @@ public class SearchJava extends NMapActivity{
 
             Log.d("abcTest","onMyLocationChangeListener");
 
-            nGeoPoint= mMapLocationManager.getMyLocation();
-
-            Log.d("abcTest","my Loc = "+nGeoPoint.getLatitude()+"long = "+nGeoPoint.getLongitude());
+            ///nGeoPoint= mMapLocationManager.getMyLocation();
             if(testChk) {
-                findPlacemarkAtLocation(nGeoPoint.getLongitude(), nGeoPoint.getLatitude());
+                ///findPlacemarkAtLocation(nGeoPoint.getLongitude(), nGeoPoint.getLatitude());
                 testChk = false;
             }
             if (mMapController != null) {
@@ -304,7 +305,7 @@ public class SearchJava extends NMapActivity{
 
                 mMapView.setAutoRotateEnabled(false, false);
 
-                mMapContainerView.requestLayout();
+               /// mMapContainerView.requestLayout();
             }
         }
     }
@@ -411,9 +412,9 @@ public class SearchJava extends NMapActivity{
 
                 Intent intent = new Intent(SearchJava.this,restaurantResult.class);
                 intent.putExtra("resList",resList);
-                intent.putExtra("myLati",nGeoPoint.getLatitude());
-                intent.putExtra("myLongti",nGeoPoint.getLongitude());
 
+
+                //// need to check
                 //mMapView.setOnMapStateChangeListener(null);
                 setMapDataProviderListener(null);
 
@@ -422,6 +423,7 @@ public class SearchJava extends NMapActivity{
 
                 stopMyLocation();
 
+                ////
 
                 startActivity(intent);
 

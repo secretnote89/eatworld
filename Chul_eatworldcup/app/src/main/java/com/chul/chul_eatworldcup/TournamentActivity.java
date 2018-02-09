@@ -28,6 +28,10 @@ import java.util.ArrayList;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+import static com.chul.chul_eatworldcup.MainActivity.dong;
+import static com.chul.chul_eatworldcup.MainActivity.lati;
+import static com.chul.chul_eatworldcup.MainActivity.longti;
+
 /**
  * Created by leeyc on 2017. 12. 30..
  */
@@ -45,6 +49,10 @@ public class TournamentActivity extends Activity {
         int[] setToggle = intent.getIntArrayExtra("Toggles");
 
         String[] menuTextMatch = intent.getStringArrayExtra("TogMatch");    //get food code
+
+        Log.d("abcTest","TournamentActivity lati ="+lati);
+        Log.d("abcTest","TournamentActivity longti ="+longti);
+        Log.d("abcTest","selectedFoodActivity dong ="+dong);
 
         ArrayList<String> menuMatchTour = new ArrayList<String>();
         ArrayList<Integer> menuNumber = new ArrayList<Integer>();

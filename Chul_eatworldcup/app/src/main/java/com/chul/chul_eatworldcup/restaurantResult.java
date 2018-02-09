@@ -1,9 +1,12 @@
 package com.chul.chul_eatworldcup;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.LinearGradient;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -30,6 +33,9 @@ import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 
 import java.util.ArrayList;
 import java.util.Collections;
+
+import static com.chul.chul_eatworldcup.MainActivity.lati;
+import static com.chul.chul_eatworldcup.MainActivity.longti;
 
 /**
  * Created by leeyc on 2018. 1. 12..
@@ -84,9 +90,17 @@ public class restaurantResult extends NMapActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.test);
 
+        // create map view
+        mMapView = new NMapView(this);
+
+        // set Client ID for Open MapViewer Library
+        mMapView.setClientId(CLIENT_ID);
+
         Log.d("abcdTest","rest.java onCreate");
 
 
+        Log.d("abcTest","restaurantResult lati ="+lati);
+        Log.d("abcTest","restaurantResult longti ="+longti);
         /// get previous data
 
         ArrayList<restaurantList>restList;
@@ -95,108 +109,149 @@ public class restaurantResult extends NMapActivity{
         Intent gintent = getIntent();
 
         restList = (ArrayList<restaurantList>)gintent.getSerializableExtra("resList");
-        double mlati = gintent.getDoubleExtra("myLati",0);
-        double mlongti = gintent.getDoubleExtra("myLongti",0);
 
-        Log.d("abcdTest","nGeoPoint lati = "+mlati);
+        Log.d("abcTest","restList size = "+restList.size());
 
-        restList.remove(0);
+        if(restList.size()<2){
 
-        Collections.shuffle(restList);
+            Log.d("abcTest","resta in if");
 
-        rtv1 = (TextView)findViewById(R.id.rtv1);
-        Log.d("abcdTest",restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
-        //rtv1.setText(restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
-        rtv1.setText(restList.get(0).getResNM());
-        // finish();
+            onDestroy();
+        }else{
+            Log.d("abcTest","resta in else");
 
-        int x = Integer.parseInt(restList.get(0).getResMapX());
-        int y = Integer.parseInt(restList.get(0).getResMapY());
+            restList.remove(0);
 
+            Collections.shuffle(restList);
 
-        Log.d("abcTest","x = "+x);
-        Log.d("abcTest","y = "+y);
+            rtv1 = (TextView)findViewById(R.id.rtv1);
+            Log.d("abcdTest",restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
+            //rtv1.setText(restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
+            rtv1.setText(restList.get(0).getResNM());
+            // finish();
 
-        GeoPoint oKA = new GeoPoint(x,y);
-        GeoPoint oGeo = GeoTrans.convert(GeoTrans.KATEC, GeoTrans.GEO, oKA);
-        Double lat = oGeo.getY() * 1E6;
-        Double lng = oGeo.getX() * 1E6;
-        GeoPoint oLatLng = new GeoPoint(lat.intValue(), lng.intValue());  // 맵뷰에서 사용가능한 좌표계
+            int x = Integer.parseInt(restList.get(0).getResMapX());
+            int y = Integer.parseInt(restList.get(0).getResMapY());
 
 
+            Log.d("abcTest","x = "+x);
+            Log.d("abcTest","y = "+y);
 
-        double lati = lat;
-        double longti = lng;
-
-
-        Log.d("abcTest","lati = "+lat);
-        Log.d("abcTest","longti = "+longti);
-        /////
-
-        MapContainer = (LinearLayout)this.findViewById(R.id.MapContainer);
-
-        // create map view
-        mMapView = new NMapView(this);
-
-        // set Client ID for Open MapViewer Library
-        mMapView.setClientId(CLIENT_ID);
-
-        // 생성된 네이버 지도 객체를 LinearLayout에 추가시킨다.
-        MapContainer.addView(mMapView);
-        // initialize map view
-        mMapView.setClickable(true);
-
-        // set data provider listener
-        super.setMapDataProviderListener(onDataProviderListener);
-
-        // register listener for map state changes
-        mMapView.setOnMapStateChangeListener(onMapViewStateChangeListener);
-        mMapView.setOnMapViewTouchEventListener(onMapViewTouchEventListener);
-
-        // use map controller to zoom in/out, pan and set map center, zoom level etc.
-        mMapController = mMapView.getMapController();
-
-        // create resource provider
-        mMapViewerResourceProvider = new NMapViewerResourceProvider(this);
-
-        // location manager
-        mMapLocationManager = new NMapLocationManager(this);
-        mMapLocationManager.enableMyLocation(true);
-        mMapLocationManager.setOnLocationChangeListener(onMyLocationChangeListener);
-
-        testChk =true;
-
-        // create overlay manager
-        mOverlayManager = new NMapOverlayManager(this, mMapView, mMapViewerResourceProvider);
-
-        int markerId = NMapPOIflagType.PIN;
+            GeoPoint oKA = new GeoPoint(x,y);
+            GeoPoint oGeo = GeoTrans.convert(GeoTrans.KATEC, GeoTrans.GEO, oKA);
+            Double lat = oGeo.getY() * 1E6;
+            Double lng = oGeo.getX() * 1E6;
+            GeoPoint oLatLng = new GeoPoint(lat.intValue(), lng.intValue());  // 맵뷰에서 사용가능한 좌표계
 
 
-        // compass manager
-        mMapCompassManager = new NMapCompassManager(this);
 
-        // create my location overlay
-        mMyLocationOverlay = mOverlayManager.createMyLocationOverlay(mMapLocationManager, mMapCompassManager);
+            double lati = lat;
+            double longti = lng;
 
 
-// set POI data
-        NMapPOIdata poiData = new NMapPOIdata(1, mMapViewerResourceProvider);
-        poiData.beginPOIdata(1);
-        poiData.addPOIitem(lati, longti, restList.get(0).getResNM(), markerId, 0);
-        poiData.endPOIdata();
+            Log.d("abcTest","lati = "+lat);
+            Log.d("abcTest","longti = "+longti);
+            /////
 
-// create POI data overlay
-        NMapPOIdataOverlay poiDataOverlay = mOverlayManager.createPOIdataOverlay(poiData, null);
+            MapContainer = (LinearLayout)this.findViewById(R.id.MapContainer);
+
+            // 생성된 네이버 지도 객체를 LinearLayout에 추가시킨다.
+            MapContainer.addView(mMapView);
+            // initialize map view
+            mMapView.setClickable(true);
+
+            // set data provider listener
+            super.setMapDataProviderListener(onDataProviderListener);
+
+            // register listener for map state changes
+            mMapView.setOnMapStateChangeListener(onMapViewStateChangeListener);
+            mMapView.setOnMapViewTouchEventListener(onMapViewTouchEventListener);
+
+            // use map controller to zoom in/out, pan and set map center, zoom level etc.
+            mMapController = mMapView.getMapController();
+
+            // create resource provider
+            mMapViewerResourceProvider = new NMapViewerResourceProvider(this);
+
+            // location manager
+            mMapLocationManager = new NMapLocationManager(this);
+            mMapLocationManager.enableMyLocation(true);
+            mMapLocationManager.setOnLocationChangeListener(onMyLocationChangeListener);
+
+            testChk =true;
+
+            // create overlay manager
+            mOverlayManager = new NMapOverlayManager(this, mMapView, mMapViewerResourceProvider);
+
+            int markerId = NMapPOIflagType.PIN;
 
 
-        // show all POI data
-        poiDataOverlay.showAllPOIdata(0);
+            // compass manager
+            mMapCompassManager = new NMapCompassManager(this);
 
-        // set event listener to the overlayr
-        poiDataOverlay.setOnStateChangeListener(onPOIdataStateChangeListener);
+            // create my location overlay
+            mMyLocationOverlay = mOverlayManager.createMyLocationOverlay(mMapLocationManager, mMapCompassManager);
 
-        DEBUG=true;
 
+    // set POI data
+            NMapPOIdata poiData = new NMapPOIdata(1, mMapViewerResourceProvider);
+            poiData.beginPOIdata(1);
+            poiData.addPOIitem(lati, longti, restList.get(0).getResNM(), markerId, 0);
+            poiData.endPOIdata();
+
+    // create POI data overlay
+            NMapPOIdataOverlay poiDataOverlay = mOverlayManager.createPOIdataOverlay(poiData, null);
+
+
+            // show all POI data
+            poiDataOverlay.showAllPOIdata(0);
+
+            // set event listener to the overlayr
+            poiDataOverlay.setOnStateChangeListener(onPOIdataStateChangeListener);
+
+            DEBUG=true;
+
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopMyLocation();
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(restaurantResult.this);
+
+        dialog.setTitle("주변에 선택한 음식점이 없습니다..");
+
+        dialog.setPositiveButton("토너먼트 다시하기", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent00 = new Intent(restaurantResult.this,MainActivity.class);
+                intent00.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent00);
+            }
+        });
+        dialog.show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(restaurantResult.this);
+
+        dialog.setTitle("주변에 선택한 음식점이 없습니다..");
+
+        dialog.setPositiveButton("토너먼트 다시하기", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent00 = new Intent(restaurantResult.this,MainActivity.class);
+                intent00.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent00);
+            }
+        });
+        dialog.show();
     }
 
     /* POI data State Change Listener*/
@@ -239,8 +294,6 @@ public class restaurantResult extends NMapActivity{
         boolean bicycleMode = mPreferences.getBoolean(KEY_BICYCLE_MODE, NMAP_BICYCLE_MODE_DEFAULT);
 
         mMapController.setMapViewMode(viewMode);
-        mMapController.setMapViewTrafficMode(trafficMode);
-        mMapController.setMapViewBicycleMode(bicycleMode);
         mMapController.setMapCenter(new NGeoPoint(longitudeE6, latitudeE6), level);
 
         if (mIsMapEnlared) {
