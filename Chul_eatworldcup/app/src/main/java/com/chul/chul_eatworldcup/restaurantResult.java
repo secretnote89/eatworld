@@ -34,8 +34,8 @@ import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static com.chul.chul_eatworldcup.MainActivity.lati;
-import static com.chul.chul_eatworldcup.MainActivity.longti;
+import static com.chul.chul_eatworldcup.SplashActivity.lati;
+import static com.chul.chul_eatworldcup.SplashActivity.longti;
 
 /**
  * Created by leeyc on 2018. 1. 12..

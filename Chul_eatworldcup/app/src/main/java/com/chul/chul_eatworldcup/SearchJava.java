@@ -33,8 +33,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import static com.chul.chul_eatworldcup.MainActivity.dong;
-import static com.chul.chul_eatworldcup.MainActivity.lati;
-import static com.chul.chul_eatworldcup.MainActivity.longti;
+import static com.chul.chul_eatworldcup.SplashActivity.lati;
+import static com.chul.chul_eatworldcup.SplashActivity.longti;
 
 /**
  * Created by leeyc on 2017. 12. 20..

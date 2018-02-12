@@ -48,13 +48,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.chul.chul_eatworldcup.SplashActivity.GPSChk;
+import static com.chul.chul_eatworldcup.SplashActivity.lati;
+import static com.chul.chul_eatworldcup.SplashActivity.longti;
+
 public class MainActivity extends NMapActivity {
     private static final String CLIENT_ID = "wLIIkD1v3F7aYIpTjdXF";//"BDfRJ_qbTvaVbD3QdC6Y";
     private static final String clientSecret = "CIMd9Lu_vl";//"4fwk2LFzPr";
 
-    private LocationManager locationManager;
-    public static double lati;
-    public static double longti;
     public static String dong="test";
 
 
@@ -77,17 +78,16 @@ public class MainActivity extends NMapActivity {
     protected void onCreate(Bundle savedInstanceState) {
         //setTheme(R.style.AppTheme);
 
+
         setTitle("오늘 뭐먹지?");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
 
         Log.d("abcTest","Main??");
+        Log.d("abcTest","GPSChk = "+GPSChk);
 
-        initMap();
-
-        ///// get my location
-        startLocationUpdates();
+            initMap();
 
         /// origin
         final int img[] = {R.drawable.kor,R.drawable.jap,R.drawable.chi,R.drawable.asia,R.drawable.eng,R.drawable.dduk,R.drawable.chicken};
@@ -137,7 +137,8 @@ public class MainActivity extends NMapActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        startLocationUpdates();
+        Log.d("abcTest","onResume");
+
     }
 
 
@@ -176,27 +177,6 @@ public class MainActivity extends NMapActivity {
         mMapCompassManager = new NMapCompassManager(this);
     }
 
-    private void startLocationUpdates(){
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
-
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_COARSE_LOCATION)){
-                Toast.makeText(MainActivity.this,"권한이 필요해애",Toast.LENGTH_SHORT).show();
-            }
-
-            //get auth
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},1);
-        }
-        else{
-            //already get auth
-
-            Log.d("abcTest","already get auth");
-
-            locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,2000,10,mLocationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,2000,10,mLocationListener);
-        }
-    }
 
 
     /* NMapDataProvider Listener */
@@ -210,7 +190,7 @@ public class MainActivity extends NMapActivity {
             dong = (placeMark != null) ? placeMark.toString() : null;
 
             if (errInfo != null) {
-                Log.e("bcdTest", "Failed to findPlacemarkAtLocation: error=" + errInfo.toString());
+                Log.e("abcTest", "Failed to findPlacemarkAtLocation: error=" + errInfo.toString());
 
                 Toast.makeText(MainActivity.this, errInfo.toString(), Toast.LENGTH_LONG).show();
                 return;
@@ -280,6 +260,7 @@ public class MainActivity extends NMapActivity {
 
             findPlacemarkAtLocation(longti2, lati2);
             Log.d("abcTest","onMyLoc chan find dong");
+
             return true;
         }
 
@@ -297,74 +278,6 @@ public class MainActivity extends NMapActivity {
     /**
      * Container view class to rotate map view.
      */
-
-/////////////
-    private final LocationListener mLocationListener = new LocationListener() {
-
-
-        @Override
-        public void onLocationChanged(Location location) {
-
-            if(location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
-                Log.d("abcTest","where ?= GPS_PROVIDER");
-
-            }else{
-                Log.d("abcTest","where ?= NETWORK_PROVIDER");
-            }
-            String msg = "New Lati: "+location.getLatitude() + "New Longti: "+location.getLongitude();
-//            lati = location.getLatitude();
-//            longti = location.getLongitude();
-//
-//            Log.d("abcTest","msg = "+msg);
-//            Log.d("abcTest","onLocationChange lati = "+lati);
-//            Log.d("abcTest","onLocationChange longti = "+longti);
-//
-//            findPlacemarkAtLocation(longti, lati);
-//            Log.d("abcTest","after findPlaceMark");
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
-
-            Toast.makeText(getBaseContext(),"GPS is turn off!!!",Toast.LENGTH_SHORT).show();
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-            Toast.makeText(getBaseContext(),"GPS is turn on!!",Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            Toast.makeText(getBaseContext(),"GPS status change!!",Toast.LENGTH_SHORT).show();
-
-            Log.d("abcTest","onStatusChang");
-        }
-
-    };
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        switch (requestCode){
-            case 1:
-                if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
-                    //get auth ok?
-
-                    Log.d("abcTest","onReqPermission code=1");
-                    Intent intent = new Intent(MainActivity.this,MainActivity.class);
-                    startActivity(intent);
-
-                }else{
-                    Toast.makeText(MainActivity.this,"권한이 없으면 안되는데...",Toast.LENGTH_SHORT).show();
-                }
-           return;
-        }
-    }
 
     @Override
     public void onBackPressed() {
