@@ -298,6 +298,12 @@ public class SplashActivity extends Activity {
                 });
             }
         }).start();
+//        try{
+//            Thread.sleep(1000);
+//        }catch (InterruptedException e){
+//            e.printStackTrace();
+//        }
+        ///Thread.interrupted();
     }
     void noticeGPSChk(){
                         AlertDialog.Builder dialog = new AlertDialog.Builder(SplashActivity.this);

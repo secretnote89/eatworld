@@ -434,6 +434,12 @@ public class SearchJava extends NMapActivity{
                 });
             }
         }).start();
+        try{
+            Thread.sleep(1000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
+        ///Thread.interrupted();
     }
 
 

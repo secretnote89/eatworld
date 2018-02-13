@@ -5,6 +5,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="?android:attr/progressBarStyle"
+        android:id="@+id/progBar"
+        android:max="100"
+        android:progress="10"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
 <!--
     <LinearLayout
         android:layout_width="match_parent"

@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +43,11 @@ public class selectedFoodActivity extends Activity {
     Button btn_find;
     TextView tv_vs;
     Button v_invisible;
+    ProgressBar progressBar;
 
+    Handler mhandelr = new Handler();
+
+    int cnt2=0;
 
 
     int cur;
@@ -76,6 +83,7 @@ public class selectedFoodActivity extends Activity {
         gradientdrawable.setStroke(3, Color.BLACK);
 
         gradientdrawable.setCornerRadius(25.0f);
+        progressBar = (ProgressBar)this.findViewById(R.id.progBar);
 
 
 
@@ -266,14 +274,31 @@ public class selectedFoodActivity extends Activity {
             dialog.show();
         }
     }
-    public void goSearch(){
+        public void goSearch(){
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.d("abcTest","selectedFood Activity thread");
+                Log.d("abcTest2","selectedFood Activity thread");
 
-                if(dong.equals("test")){
+
+
+
+                ///Message message = handler.obtainMessage();
+                ///handler.sendEmptyMessage(1);
+
                     //// progress로 바꾸기 예정
+                    Log.d("abcTest","selected test lati2 = "+lati2);
+                    Log.d("abcTest","selected test longti2 = "+longti2);
+                    Log.d("abcTest","selected test dong = "+dong);
+                if(dong.equals("test")){
+                    mhandelr.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            cnt2+=10;
+                            progressBar.setVisibility(View.VISIBLE);
+                            progressBar.setProgress(cnt2);
+                        }
+                    });
                     Log.d("abcTest","selected test lati2 = "+lati2);
                     Log.d("abcTest","selected test longti2 = "+longti2);
                     Log.d("abcTest","selected test dong = "+dong);
@@ -296,5 +321,27 @@ public class selectedFoodActivity extends Activity {
                 });
             }
         }).start();
+
+/*        try{
+            Thread.sleep(1000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }*/
+        ///Thread.interrupted();
     }
+
+    final Handler handler  = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d("abcTest2","handler");
+
+            if(msg.what==1){
+                Log.d("abcTest2","handler && msg.what==1");
+                cnt2+=10;
+                progressBar.setVisibility(View.VISIBLE);
+                progressBar.setProgress(cnt2);
+            }
+        }
+    };
+
 }
