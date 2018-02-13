@@ -33,8 +33,6 @@ public class SplashActivity extends Activity {
 
     public static boolean GPSChk = false;
     public static boolean GPSOnOFFChk = false;
-    public static double lati;
-    public static double longti;
 
     public static final String PREFS_NAME = "MyPrefsFile";
     public static boolean isFirstRun=true;
@@ -173,9 +171,11 @@ public class SplashActivity extends Activity {
                 Log.d("abcTest","where ?= NETWORK_PROVIDER");
             }
             String msg = "New Lati: "+location.getLatitude() + "New Longti: "+location.getLongitude();
+            double lati;
+            double longti;
             lati = location.getLatitude();
             longti = location.getLongitude();
-
+            locationManager.removeUpdates(mLocationListener);
             Log.d("abcTest","msg = "+msg);
             Log.d("abcTest","onLocationChange lati = "+lati);
             Log.d("abcTest","onLocationChange longti = "+longti);

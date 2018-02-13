@@ -1,21 +1,10 @@
 package com.chul.chul_eatworldcup;
-
-import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -44,20 +33,15 @@ import com.nhn.android.mapviewer.overlay.NMapMyLocationOverlay;
 import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
 import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static com.chul.chul_eatworldcup.SplashActivity.GPSChk;
-import static com.chul.chul_eatworldcup.SplashActivity.lati;
-import static com.chul.chul_eatworldcup.SplashActivity.longti;
 
 public class MainActivity extends NMapActivity {
     private static final String CLIENT_ID = "wLIIkD1v3F7aYIpTjdXF";//"BDfRJ_qbTvaVbD3QdC6Y";
     private static final String clientSecret = "CIMd9Lu_vl";//"4fwk2LFzPr";
 
     public static String dong="test";
-
+    public static double lati2;
+    public static double longti2;
 
     private NMapView mMapView;
     NMapLocationManager mMapLocationManager;
@@ -73,6 +57,7 @@ public class MainActivity extends NMapActivity {
     private NMapOverlayManager mOverlayManager;
 
     private NMapMyLocationOverlay mMyLocationOverlay;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,16 +94,37 @@ public class MainActivity extends NMapActivity {
 
         final TextView tv = (TextView)findViewById(R.id.tv1);
 
+
+        ///////
         Button goBtn = (Button)this.findViewById(R.id.btn_menu);
 
         goBtn.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
-                Intent intent = new Intent(MainActivity.this,TournamentActivity.class);
-                intent.putExtra("Toggles",setToggle);
-                intent.putExtra("TogMatch",menuTextMatch);
-                intent.putExtra("lati",lati);
-                intent.putExtra("longti",longti);
-                startActivity(intent);
+                boolean checked = false;
+                for(int i=0; i<setToggle.length;i++){
+                    if(setToggle[i]==-1)
+                    {
+                        checked=true;
+                        break;
+                    }
+                }
+
+
+                if(checked)
+                {
+
+                    Log.d("abcTest","Main button Click checked");
+                    Intent intent = new Intent(MainActivity.this,TournamentActivity.class);
+                    intent.putExtra("Toggles",setToggle);
+                    intent.putExtra("TogMatch",menuTextMatch);
+//                    intent.putExtra("lati2",lati2);
+//                    intent.putExtra("longti2",longti2);
+//                    intent.putExtra("dong",dong);
+                    startActivity(intent);
+                }else{
+                    Log.d("abcTest","Main button Click unchecked");
+                    Toast.makeText(getApplicationContext(),"카테고리를 선택해주세요",Toast.LENGTH_SHORT).show();
+                }
                                      }});
 
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -133,14 +139,6 @@ public class MainActivity extends NMapActivity {
             }
         });
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("abcTest","onResume");
-
-    }
-
 
     private void initMap(){
 
@@ -159,7 +157,7 @@ public class MainActivity extends NMapActivity {
        /// mMapController = mMapView.getMapController();
 
         // create resource provider
-        mMapViewerResourceProvider = new NMapViewerResourceProvider(this);
+        ///mMapViewerResourceProvider = new NMapViewerResourceProvider(this);
 
         // location manager
         mMapLocationManager = new NMapLocationManager(this);
@@ -168,13 +166,13 @@ public class MainActivity extends NMapActivity {
         ////
 
         // create overlay manager
-        mOverlayManager = new NMapOverlayManager(this, mMapView, mMapViewerResourceProvider);
+       /// mOverlayManager = new NMapOverlayManager(this, mMapView, mMapViewerResourceProvider);
 
         // create my location overlay
-        mMyLocationOverlay = mOverlayManager.createMyLocationOverlay(mMapLocationManager, mMapCompassManager);
+       /// mMyLocationOverlay = mOverlayManager.createMyLocationOverlay(mMapLocationManager, mMapCompassManager);
 
         // compass manager
-        mMapCompassManager = new NMapCompassManager(this);
+        ///mMapCompassManager = new NMapCompassManager(this);
     }
 
 
@@ -188,7 +186,8 @@ public class MainActivity extends NMapActivity {
             Log.d("abcTest", "onReverseGeocoderResponse: placeMark="
                     + ((placeMark != null) ? placeMark.toString() : null));
             dong = (placeMark != null) ? placeMark.toString() : null;
-
+            ///stop GPS & Naver Map
+            stopMyLocation();
             if (errInfo != null) {
                 Log.e("abcTest", "Failed to findPlacemarkAtLocation: error=" + errInfo.toString());
 
@@ -252,8 +251,8 @@ public class MainActivity extends NMapActivity {
         public boolean onLocationChanged(NMapLocationManager locationManager, NGeoPoint myLocation) {
 
             Log.d("abcTest","onMyLocationChangeListener");
-            double lati2= mMapLocationManager.getMyLocation().getLatitude();
-            double longti2= mMapLocationManager.getMyLocation().getLongitude();
+            lati2= mMapLocationManager.getMyLocation().getLatitude();
+            longti2= mMapLocationManager.getMyLocation().getLongitude();
 
             Log.d("abcTest","onMyLoc chan lati2 = "+lati2);
             Log.d("abcTest","onMyLoc chan longti2 = "+longti2);
@@ -278,6 +277,21 @@ public class MainActivity extends NMapActivity {
     /**
      * Container view class to rotate map view.
      */
+
+    private void stopMyLocation() {
+        Log.d("abcTest","stopMyLocation");
+            mMapLocationManager.disableMyLocation();
+
+            if (mMapView.isAutoRotateEnabled()) {
+                mMyLocationOverlay.setCompassHeadingVisible(false);
+
+                mMapCompassManager.disableCompass();
+
+                mMapView.setAutoRotateEnabled(false, false);
+
+                /// mMapContainerView.requestLayout();
+            }
+    }
 
     @Override
     public void onBackPressed() {
@@ -305,6 +319,14 @@ public class MainActivity extends NMapActivity {
         dialog.show();
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("abcTest","onResume");
+        mMapLocationManager.enableMyLocation(true);
+    }
+
 
 }
 class MyAdapter extends BaseAdapter{

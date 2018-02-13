@@ -1,12 +1,9 @@
 package com.chul.chul_eatworldcup;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.LinearGradient;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -33,9 +30,6 @@ import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 
 import java.util.ArrayList;
 import java.util.Collections;
-
-import static com.chul.chul_eatworldcup.SplashActivity.lati;
-import static com.chul.chul_eatworldcup.SplashActivity.longti;
 
 /**
  * Created by leeyc on 2018. 1. 12..
@@ -98,9 +92,6 @@ public class restaurantResult extends NMapActivity{
 
         Log.d("abcdTest","rest.java onCreate");
 
-
-        Log.d("abcTest","restaurantResult lati ="+lati);
-        Log.d("abcTest","restaurantResult longti ="+longti);
         /// get previous data
 
         ArrayList<restaurantList>restList;

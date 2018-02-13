@@ -1,37 +1,11 @@
 package com.chul.chul_eatworldcup;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.lang.reflect.Array;
 import java.util.Collections;
-import java.util.Random;
-
 import java.util.ArrayList;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
-
-import static com.chul.chul_eatworldcup.MainActivity.dong;
-import static com.chul.chul_eatworldcup.SplashActivity.lati;
-import static com.chul.chul_eatworldcup.SplashActivity.longti;
-
 /**
  * Created by leeyc on 2017. 12. 30..
  */
@@ -49,10 +23,6 @@ public class TournamentActivity extends Activity {
         int[] setToggle = intent.getIntArrayExtra("Toggles");
 
         String[] menuTextMatch = intent.getStringArrayExtra("TogMatch");    //get food code
-
-        Log.d("abcTest","TournamentActivity lati ="+lati);
-        Log.d("abcTest","TournamentActivity longti ="+longti);
-        Log.d("abcTest","selectedFoodActivity dong ="+dong);
 
         ArrayList<String> menuMatchTour = new ArrayList<String>();
         ArrayList<Integer> menuNumber = new ArrayList<Integer>();

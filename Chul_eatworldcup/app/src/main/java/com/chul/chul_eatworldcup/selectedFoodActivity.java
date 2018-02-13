@@ -21,8 +21,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import static com.chul.chul_eatworldcup.MainActivity.dong;
-import static com.chul.chul_eatworldcup.SplashActivity.lati;
-import static com.chul.chul_eatworldcup.SplashActivity.longti;
+import static com.chul.chul_eatworldcup.MainActivity.lati2;
+import static com.chul.chul_eatworldcup.MainActivity.longti2;
 
 /**
  * Created by leeyc on 2018. 1. 4..
@@ -84,10 +84,6 @@ public class selectedFoodActivity extends Activity {
         Intent intent_sef = getIntent();
         gridFoodName_sef=intent_sef.getStringArrayListExtra("gridFoodName"); ///shuffled foodname
         final int number = intent_sef.getIntExtra("num",0);
-
-        Log.d("abcTest","selectedFoodActivity lati ="+lati);
-        Log.d("abcTest","selectedFoodActivity longti ="+longti);
-        Log.d("abcTest","selectedFoodActivity dong ="+dong);
         if (number == 1){
             // Go To Final Food Selected
 
@@ -123,10 +119,9 @@ public class selectedFoodActivity extends Activity {
             btn_find.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent3 = new Intent(selectedFoodActivity.this,SearchJava.class);
-                    intent3.putExtra("foodName",tourtv1.getText().toString());
-                    intent3.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                    startActivity(intent3);
+
+                    goSearch();
+
                     }
             });
 
@@ -271,5 +266,35 @@ public class selectedFoodActivity extends Activity {
             dialog.show();
         }
     }
+    public void goSearch(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("abcTest","selectedFood Activity thread");
 
+                if(dong.equals("test")){
+                    //// progress로 바꾸기 예정
+                    Log.d("abcTest","selected test lati2 = "+lati2);
+                    Log.d("abcTest","selected test longti2 = "+longti2);
+                    Log.d("abcTest","selected test dong = "+dong);
+                    goSearch();
+                }else{
+                    Log.d("abcTest","selected else lati2 = "+lati2);
+                    Log.d("abcTest","selected else longti2 = "+longti2);
+                    Log.d("abcTest","selected else dong = "+dong);
+                    Intent intent3 = new Intent(selectedFoodActivity.this,SearchJava.class);
+                    intent3.putExtra("foodName",tourtv1.getText().toString());
+                    intent3.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivity(intent3);
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("abcTest","selectedFood Activity thread runOnUi");
+                    }
+                });
+            }
+        }).start();
+    }
 }
