@@ -1,27 +1,9 @@
 package com.chul.chul_eatworldcup;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
-import com.nhn.android.maps.NMapActivity;
-import com.nhn.android.maps.NMapCompassManager;
-import com.nhn.android.maps.NMapController;
-import com.nhn.android.maps.NMapLocationManager;
-import com.nhn.android.maps.NMapView;
-import com.nhn.android.maps.maplib.NGeoPoint;
-import com.nhn.android.maps.nmapmodel.NMapError;
-import com.nhn.android.maps.nmapmodel.NMapPlacemark;
-import com.nhn.android.maps.overlay.NMapPOIitem;
-import com.nhn.android.mapviewer.overlay.NMapMyLocationOverlay;
-import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
-import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -33,372 +15,29 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import static com.chul.chul_eatworldcup.MainActivity.dong;
-import static com.chul.chul_eatworldcup.MainActivity.lati2;
-import static com.chul.chul_eatworldcup.MainActivity.longti2;
 
 /**
  * Created by leeyc on 2017. 12. 20..
  */
 
-public class SearchJava extends NMapActivity{
+public class SearchJava extends Activity{
     private static final String CLIENT_ID = "wLIIkD1v3F7aYIpTjdXF";//"BDfRJ_qbTvaVbD3QdC6Y";
     private static final String clientSecret = "CIMd9Lu_vl";//"4fwk2LFzPr";
 
     String foodname;
     ArrayList<restaurantList>resList = new ArrayList<>();
 
-    ///NMAP
-    private NMapView mMapView;
-    NMapLocationManager mMapLocationManager;
-    NMapController mMapController;
-    NMapViewerResourceProvider mMapViewerResourceProvider;
-    NMapCompassManager mMapCompassManager;
-    private SharedPreferences mPreferences;
-
-    private static final NGeoPoint NMAP_LOCATION_DEFAULT = new NGeoPoint(126.8443006, 37.5576753);
-    private static final int NMAP_ZOOMLEVEL_DEFAULT = 11;
-    private static final int NMAP_VIEW_MODE_DEFAULT = NMapView.VIEW_MODE_VECTOR;
-    private static final boolean NMAP_TRAFFIC_MODE_DEFAULT = false;
-    private static final boolean NMAP_BICYCLE_MODE_DEFAULT = false;
-
-    private static final String KEY_ZOOM_LEVEL = "NMapViewer.zoomLevel";
-    private static final String KEY_CENTER_LONGITUDE = "NMapViewer.centerLongitudeE6";
-    private static final String KEY_CENTER_LATITUDE = "NMapViewer.centerLatitudeE6";
-    private static final String KEY_VIEW_MODE = "NMapViewer.viewMode";
-    private static final String KEY_TRAFFIC_MODE = "NMapViewer.trafficMode";
-    private static final String KEY_BICYCLE_MODE = "NMapViewer.bicycleMode";
-
-    private static final boolean DEBUG = false;
-
-    boolean testChk = false;
-    private NMapPOIitem mFloatingPOIitem;
-    private NMapPOIdataOverlay mFloatingPOIdataOverlay;
-    private NMapOverlayManager mOverlayManager;
-
-    private NMapMyLocationOverlay mMyLocationOverlay;
-   //// private MapContainerView mMapContainerView;
-
-    NGeoPoint nGeoPoint = new NGeoPoint();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.search_test);
-        // create map view
-        mMapView = new NMapView(this);
-
-        // set Client ID for Open MapViewer Library
-        mMapView.setClientId(CLIENT_ID);
-
-        Log.d("abcTest","Search lati2 = "+lati2);
-        Log.d("abcTest","Search longti2 = "+longti2);
-        Log.d("abcTest","Search dong = "+dong);
-
-
-        // initialize map view
-        ///mMapView.setClickable(true);
-        ///20180208_get dong without get map
-
-        // set data provider listener
-        super.setMapDataProviderListener(onDataProviderListener);
-        // register listener for map state changes
-        mMapView.setOnMapStateChangeListener(onMapViewStateChangeListener);
-        ///mMapView.setOnMapViewTouchEventListener(onMapViewTouchEventListener);
-
-        // use map controller to zoom in/out, pan and set map center, zoom level etc.
-        mMapController = mMapView.getMapController();
-
-        // create resource provider
-        mMapViewerResourceProvider = new NMapViewerResourceProvider(this);
-
-        // location manager
-        mMapLocationManager = new NMapLocationManager(this);
-        mMapLocationManager.enableMyLocation(true);
-        mMapLocationManager.setOnLocationChangeListener(onMyLocationChangeListener);
-
-        ////
-
-        testChk =true;
-
-        // create overlay manager
-        mOverlayManager = new NMapOverlayManager(this, mMapView, mMapViewerResourceProvider);
-
-        int markerId = NMapPOIflagType.PIN;
-
-        // create my location overlay
-        mMyLocationOverlay = mOverlayManager.createMyLocationOverlay(mMapLocationManager, mMapCompassManager);
-
-        // compass manager
-        mMapCompassManager = new NMapCompassManager(this);
-
-
-        ///
         ////
         Intent getintent = getIntent();
         foodname= getintent.getStringExtra("foodName");
 
         Log.d("abcTest","foodname = "+foodname);
-    }
 
-       private boolean mIsMapEnlared = false;
-
-    private void restoreInstanceState() {
-        mPreferences = getPreferences(MODE_PRIVATE);
-
-        int longitudeE6 = mPreferences.getInt(KEY_CENTER_LONGITUDE, NMAP_LOCATION_DEFAULT.getLongitudeE6());
-        int latitudeE6 = mPreferences.getInt(KEY_CENTER_LATITUDE, NMAP_LOCATION_DEFAULT.getLatitudeE6());
-        int level = mPreferences.getInt(KEY_ZOOM_LEVEL, NMAP_ZOOMLEVEL_DEFAULT);
-        int viewMode = mPreferences.getInt(KEY_VIEW_MODE, NMAP_VIEW_MODE_DEFAULT);
-        boolean trafficMode = mPreferences.getBoolean(KEY_TRAFFIC_MODE, NMAP_TRAFFIC_MODE_DEFAULT);
-        boolean bicycleMode = mPreferences.getBoolean(KEY_BICYCLE_MODE, NMAP_BICYCLE_MODE_DEFAULT);
-
-        mMapController.setMapViewMode(viewMode);
-        ///mMapController.setMapViewTrafficMode(trafficMode);
-        ///mMapController.setMapViewBicycleMode(bicycleMode);
-
-        if (mIsMapEnlared) {
-            mMapView.setScalingFactor(2.0F);
-        } else {
-            mMapView.setScalingFactor(1.0F);
-        }
-    }
-
-
-
-    /* NMapDataProvider Listener */
-    private final OnDataProviderListener onDataProviderListener = new OnDataProviderListener() {
-
-        @Override
-        public void onReverseGeocoderResponse(NMapPlacemark placeMark, NMapError errInfo) {
-
-
-            Log.d("abcTest", "onReverseGeocoderResponse: placeMark="
-                    + ((placeMark != null) ? placeMark.toString() : null));
-            dong = (placeMark != null) ? placeMark.toString() : null;
-
-            if(dong!=null&& !(dong.equals("test"))){
-                gofind();
-            }
-
-            if (DEBUG) {
-                Log.d("abcTest", "onReverseGeocoderResponse: placeMark="
-                        + ((placeMark != null) ? placeMark.toString() : null));
-            }
-
-            if (errInfo != null) {
-                Log.e("bcdTest", "Failed to findPlacemarkAtLocation: error=" + errInfo.toString());
-
-                Toast.makeText(SearchJava.this, errInfo.toString(), Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            if (mFloatingPOIitem != null && mFloatingPOIdataOverlay != null) {
-                mFloatingPOIdataOverlay.deselectFocusedPOIitem();
-
-                if (placeMark != null) {
-                    mFloatingPOIitem.setTitle(placeMark.toString());
-                }
-                mFloatingPOIdataOverlay.selectPOIitemBy(mFloatingPOIitem.getId(), false);
-            }
-        }
-
-    };
-
-    /* MapView State Change Listener*/
-    private final NMapView.OnMapStateChangeListener onMapViewStateChangeListener = new NMapView.OnMapStateChangeListener() {
-
-        @Override
-        public void onMapInitHandler(NMapView mapView, NMapError errorInfo) {
-
-            if (errorInfo == null) { // success
-                // restore map view state such as map center position and zoom level.
-
-                Log.d("abcTest","in onMapViewStateCh~ onMapInitHandler ");
-
-                restoreInstanceState();
-                Log.d("abcTest","after findPlaceMark");
-
-            } else { // fail
-                Log.e("abcTest", "onFailedToInitializeWithError: " + errorInfo.toString());
-
-                Toast.makeText(SearchJava.this, errorInfo.toString(), Toast.LENGTH_LONG).show();
-            }
-        }
-
-        @Override
-        public void onAnimationStateChange(NMapView mapView, int animType, int animState) {
-            if (DEBUG) {
-                Log.d("bcdTest", "onAnimationStateChange: animType=" + animType + ", animState=" + animState);
-            }
-        }
-
-        @Override
-        public void onMapCenterChange(NMapView mapView, NGeoPoint center) {
-            if (DEBUG) {
-                Log.d("bcdTest", "onMapCenterChange: center=" + center.toString());
-            }
-        }
-
-        @Override
-        public void onZoomLevelChange(NMapView mapView, int level) {
-            if (DEBUG) {
-                Log.d("bcdTest", "onZoomLevelChange: level=" + level);
-            }
-        }
-
-        @Override
-        public void onMapCenterChangeFine(NMapView mapView) {
-
-        }
-    };
-
-    /* MyLocation Listener */
-    private final NMapLocationManager.OnLocationChangeListener onMyLocationChangeListener = new NMapLocationManager.OnLocationChangeListener() {
-
-        @Override
-        public boolean onLocationChanged(NMapLocationManager locationManager, NGeoPoint myLocation) {
-
-            Log.d("abcTest","onMyLocationChangeListener");
-
-            ///nGeoPoint= mMapLocationManager.getMyLocation();
-            if(testChk) {
-                ///findPlacemarkAtLocation(nGeoPoint.getLongitude(), nGeoPoint.getLatitude());
-                testChk = false;
-            }
-            if (mMapController != null) {
-                mMapController.animateTo(myLocation);
-            }
-
-            return true;
-        }
-
-        @Override
-        public void onLocationUpdateTimeout(NMapLocationManager locationManager) {
-
-            // stop location updating
-            Runnable runnable = new Runnable() {
-                public void run() {
-                    stopMyLocation();
-                }
-            };
-            runnable.run();
-
-            Toast.makeText(SearchJava.this, "Your current location is temporarily unavailable.", Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onLocationUnavailableArea(NMapLocationManager locationManager, NGeoPoint myLocation) {
-
-            Toast.makeText(SearchJava.this, "Your current location is unavailable area.", Toast.LENGTH_LONG).show();
-
-            stopMyLocation();
-        }
-    };
-    private void stopMyLocation() {
-        if (mMyLocationOverlay != null) {
-            mMapLocationManager.disableMyLocation();
-
-            if (mMapView.isAutoRotateEnabled()) {
-                mMyLocationOverlay.setCompassHeadingVisible(false);
-
-                mMapCompassManager.disableCompass();
-
-                mMapView.setAutoRotateEnabled(false, false);
-
-               /// mMapContainerView.requestLayout();
-            }
-        }
-    }
-
-
-    private final NMapView.OnMapViewTouchEventListener onMapViewTouchEventListener = new NMapView.OnMapViewTouchEventListener() {
-
-        @Override
-        public void onLongPress(NMapView mapView, MotionEvent ev) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onLongPressCanceled(NMapView mapView) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onSingleTapUp(NMapView mapView, MotionEvent ev) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onTouchDown(NMapView mapView, MotionEvent ev) {
-
-        }
-
-        @Override
-        public void onScroll(NMapView mapView, MotionEvent e1, MotionEvent e2) {
-        }
-
-        @Override
-        public void onTouchUp(NMapView mapView, MotionEvent ev) {
-            // TODO Auto-generated method stub
-
-        }
-
-    };
-
-
-    /**
-     * Container view class to rotate map view.
-     */
-    private class MapContainerView extends ViewGroup {
-
-        public MapContainerView(Context context) {
-            super(context);
-        }
-
-        @Override
-        protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-            final int width = getWidth();
-            final int height = getHeight();
-            final int count = getChildCount();
-            for (int i = 0; i < count; i++) {
-                final View view = getChildAt(i);
-                final int childWidth = view.getMeasuredWidth();
-                final int childHeight = view.getMeasuredHeight();
-                final int childLeft = (width - childWidth) / 2;
-                final int childTop = (height - childHeight) / 2;
-                view.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
-            }
-
-            if (changed) {
-                mOverlayManager.onSizeChanged(width, height);
-            }
-        }
-
-        @Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            int w = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-            int h = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-            int sizeSpecWidth = widthMeasureSpec;
-            int sizeSpecHeight = heightMeasureSpec;
-
-            final int count = getChildCount();
-            for (int i = 0; i < count; i++) {
-                final View view = getChildAt(i);
-
-                if (view instanceof NMapView) {
-                    if (mMapView.isAutoRotateEnabled()) {
-                        int diag = (((int)(Math.sqrt(w * w + h * h)) + 1) / 2 * 2);
-                        sizeSpecWidth = MeasureSpec.makeMeasureSpec(diag, MeasureSpec.EXACTLY);
-                        sizeSpecHeight = sizeSpecWidth;
-                    }
-                }
-
-                view.measure(sizeSpecWidth, sizeSpecHeight);
-            }
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        }
+        gofind();
     }
 
     public void gofind(){
@@ -412,15 +51,6 @@ public class SearchJava extends NMapActivity{
                 Intent intent = new Intent(SearchJava.this,restaurantResult.class);
                 intent.putExtra("resList",resList);
 
-
-                //// need to check
-                //mMapView.setOnMapStateChangeListener(null);
-                setMapDataProviderListener(null);
-
-                mMapLocationManager.enableMyLocation(false);
-                mMapLocationManager.setOnLocationChangeListener(null);
-
-                stopMyLocation();
 
                 ////
 

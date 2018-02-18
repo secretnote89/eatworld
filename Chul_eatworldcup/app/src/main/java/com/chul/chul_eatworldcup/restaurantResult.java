@@ -31,6 +31,11 @@ import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static com.chul.chul_eatworldcup.MainActivity.dong;
+import static com.chul.chul_eatworldcup.MainActivity.lati2;
+import static com.chul.chul_eatworldcup.MainActivity.longti2;
+import static com.chul.chul_eatworldcup.MainActivity.si;
+
 /**
  * Created by leeyc on 2018. 1. 12..
  */
@@ -135,14 +140,17 @@ public class restaurantResult extends NMapActivity{
             GeoPoint oLatLng = new GeoPoint(lat.intValue(), lng.intValue());  // 맵뷰에서 사용가능한 좌표계
 
 
+            Log.d("abcTest","oLatLng x = "+oLatLng.getX()+"oLatLng y = "+oLatLng.getY());
 
             double lati = lat;
             double longti = lng;
 
 
-            Log.d("abcTest","lati = "+lat);
-            Log.d("abcTest","longti = "+longti);
+            Log.d("abcTest","rest R lati = "+lati);
+            Log.d("abcTest","rest R longti = "+longti);
             /////
+            Log.d("abcTest","rest R dong = "+dong);
+            Log.d("abcTest","rest R si = "+si);
 
             MapContainer = (LinearLayout)this.findViewById(R.id.MapContainer);
 
@@ -166,7 +174,7 @@ public class restaurantResult extends NMapActivity{
 
             // location manager
             mMapLocationManager = new NMapLocationManager(this);
-            mMapLocationManager.enableMyLocation(true);
+            mMapLocationManager.enableMyLocation(false);
             mMapLocationManager.setOnLocationChangeListener(onMyLocationChangeListener);
 
             testChk =true;
@@ -187,7 +195,8 @@ public class restaurantResult extends NMapActivity{
     // set POI data
             NMapPOIdata poiData = new NMapPOIdata(1, mMapViewerResourceProvider);
             poiData.beginPOIdata(1);
-            poiData.addPOIitem(lati, longti, restList.get(0).getResNM(), markerId, 0);
+            ///poiData.addPOIitem(lati, longti, restList.get(0).getResNM(), markerId, 0);
+            poiData.addPOIitem(oLatLng.getX(), longti, restList.get(0).getResNM(), markerId, 0);
             poiData.endPOIdata();
 
     // create POI data overlay
@@ -200,7 +209,7 @@ public class restaurantResult extends NMapActivity{
             // set event listener to the overlayr
             poiDataOverlay.setOnStateChangeListener(onPOIdataStateChangeListener);
 
-            DEBUG=true;
+           // DEBUG=true;
 
         }
 
@@ -226,24 +235,6 @@ public class restaurantResult extends NMapActivity{
         dialog.show();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        AlertDialog.Builder dialog = new AlertDialog.Builder(restaurantResult.this);
-
-        dialog.setTitle("주변에 선택한 음식점이 없습니다..");
-
-        dialog.setPositiveButton("토너먼트 다시하기", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent00 = new Intent(restaurantResult.this,MainActivity.class);
-                intent00.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                startActivity(intent00);
-            }
-        });
-        dialog.show();
-    }
 
     /* POI data State Change Listener*/
     private final NMapPOIdataOverlay.OnStateChangeListener onPOIdataStateChangeListener = new NMapPOIdataOverlay.OnStateChangeListener() {
@@ -285,7 +276,7 @@ public class restaurantResult extends NMapActivity{
         boolean bicycleMode = mPreferences.getBoolean(KEY_BICYCLE_MODE, NMAP_BICYCLE_MODE_DEFAULT);
 
         mMapController.setMapViewMode(viewMode);
-        mMapController.setMapCenter(new NGeoPoint(longitudeE6, latitudeE6), level);
+        mMapController.setMapCenter(new NGeoPoint(longti2, lati2), level);
 
         if (mIsMapEnlared) {
             mMapView.setScalingFactor(2.0F);
@@ -378,9 +369,7 @@ public class restaurantResult extends NMapActivity{
 
             Log.d("bcdTest","onMyLocationChangeListener");
 
-            nGeoPoint= mMapLocationManager.getMyLocation();
-
-            Log.d("bcdTest","my Loc = "+nGeoPoint.getLatitude()+"long = "+nGeoPoint.getLongitude());
+            ///nGeoPoint= mMapLocationManager.getMyLocation();
 
             if (mMapController != null) {
                 mMapController.animateTo(myLocation);

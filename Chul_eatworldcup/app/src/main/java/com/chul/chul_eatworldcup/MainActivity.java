@@ -40,6 +40,7 @@ public class MainActivity extends NMapActivity {
     private static final String clientSecret = "CIMd9Lu_vl";//"4fwk2LFzPr";
 
     public static String dong="test";
+    public static String si="test";
     public static double lati2;
     public static double longti2;
 
@@ -186,6 +187,7 @@ public class MainActivity extends NMapActivity {
             Log.d("abcTest", "onReverseGeocoderResponse: placeMark="
                     + ((placeMark != null) ? placeMark.toString() : null));
             dong = (placeMark != null) ? placeMark.toString() : null;
+            si = placeMark.siName;
             ///stop GPS & Naver Map
             stopMyLocation();
             if (errInfo != null) {

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MyServiceTest</string>
+    <string name="btnStart">음악서비스 시작</string>
+    <string name="btnStop">음악서비스 중지</string>
+</resources>

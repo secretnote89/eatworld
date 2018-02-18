@@ -281,8 +281,6 @@ public class selectedFoodActivity extends Activity {
                 Log.d("abcTest2","selectedFood Activity thread");
 
 
-
-
                 ///Message message = handler.obtainMessage();
                 ///handler.sendEmptyMessage(1);
 
@@ -297,6 +295,8 @@ public class selectedFoodActivity extends Activity {
                             cnt2+=10;
                             progressBar.setVisibility(View.VISIBLE);
                             progressBar.setProgress(cnt2);
+//                            tournimgv1.setVisibility(View.GONE);
+//                            tourtv1.setVisibility(View.GONE);
                         }
                     });
                     Log.d("abcTest","selected test lati2 = "+lati2);
@@ -322,26 +322,12 @@ public class selectedFoodActivity extends Activity {
             }
         }).start();
 
-/*        try{
+        try{
             Thread.sleep(1000);
         }catch (InterruptedException e){
             e.printStackTrace();
-        }*/
+        }
         ///Thread.interrupted();
     }
-
-    final Handler handler  = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            Log.d("abcTest2","handler");
-
-            if(msg.what==1){
-                Log.d("abcTest2","handler && msg.what==1");
-                cnt2+=10;
-                progressBar.setVisibility(View.VISIBLE);
-                progressBar.setProgress(cnt2);
-            }
-        }
-    };
 
 }
