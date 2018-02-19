@@ -44,6 +44,18 @@ public class GpsService extends Service {
 
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d("abcTest","onStartCommand");
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("abcTest","onDestroy");
+    }
+
     /////////////
     private final LocationListener mLocationListener = new LocationListener() {
 
@@ -126,6 +138,7 @@ public class GpsService extends Service {
         @Nullable
         @Override
         public IBinder onBind (Intent intent){
+            Log.d("abcTest","onBind");
             return mBinder;
         }
 
@@ -133,6 +146,7 @@ public class GpsService extends Service {
 
             @Override
             protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
+                Log.d("abcTest","onTransact");
                 return super.onTransact(code, data, reply, flags);
             }
         };
