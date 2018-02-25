@@ -12,7 +12,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.provider.Settings;
@@ -34,26 +37,68 @@ public class GpsService extends Service {
 
     public static final String PREFS_NAME = "MyPrefsFile";
 
-    private LocationManager locationManager;
+    private LocationManager locationManager = null;
+    private static final int LOCATION_INTERVAL = 1000;
+    private static final float LOCATION_DISTANCE = 10f;
 
+    public static final int MSG_REGISTER_CLIENT = 1;
+    public static final int MSG_UNREGISTER_CLIENT = 2;
+    public static final int MSG_SEND_TO_SERVICE = 3;
+    public static final int MSG_SEND_TO_ACTIVITY = 4;
+
+    private Messenger mClient = null;
 
     @Override
     public void onCreate() {
         super.onCreate();
         ///startLocationUpdates();
-
+        initializeLocationManager();
+        try {
+            locationManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
+                    mLocationListener);
+        } catch (java.lang.SecurityException ex) {
+            Log.d("abcTest", "fail to request location update, ignore", ex);
+        } catch (IllegalArgumentException ex) {
+            Log.d("abcTest", "network provider does not exist, " + ex.getMessage());
+        }
+        try {
+            locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
+                    mLocationListener);
+        } catch (java.lang.SecurityException ex) {
+            Log.d("abcTest", "fail to request location update, ignore", ex);
+        } catch (IllegalArgumentException ex) {
+            Log.d("abcTest", "gps provider does not exist " + ex.getMessage());
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("abcTest","onStartCommand");
-        return super.onStartCommand(intent, flags, startId);
+        super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
+
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         Log.d("abcTest","onDestroy");
+        super.onDestroy();
+        if (locationManager != null) {
+                try {
+                    locationManager.removeUpdates(mLocationListener);
+                } catch (Exception ex) {
+                    Log.d("abcTest", "fail to remove location listners, ignore", ex);
+                }
+        }
+    }
+
+    private void initializeLocationManager() {
+        Log.d("abcTest", "initializeLocationManager");
+        if (locationManager == null) {
+            locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        }
     }
 
     /////////////
@@ -81,6 +126,7 @@ public class GpsService extends Service {
 //
 //            findPlacemarkAtLocation(longti, lati);
 //            Log.d("abcTest","after findPlaceMark");
+
         }
 
         @Override
@@ -118,8 +164,12 @@ public class GpsService extends Service {
         dialog.setPositiveButton("설정하기", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                Log.d("abcTest","disable, noticeGPSChk, setting");
+
                 Intent intentGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivityForResult(intentGPS,1);
+                intentGPS.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intentGPS);
+                //startActivityForResult(intentGPS,1);
             }
         });
         dialog.setNegativeButton("종료", new DialogInterface.OnClickListener() {
@@ -139,15 +189,35 @@ public class GpsService extends Service {
         @Override
         public IBinder onBind (Intent intent){
             Log.d("abcTest","onBind");
-            return mBinder;
+            return mMessenger.getBinder();
         }
 
-        private final IBinder mBinder = new Binder() {
-
-            @Override
-            protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
-                Log.d("abcTest","onTransact");
-                return super.onTransact(code, data, reply, flags);
+    private final Messenger mMessenger = new Messenger(new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            Log.d("abctest","ControlService - message what : "+msg.what +" , msg.obj "+ msg.obj);
+            switch (msg.what) {
+                case MSG_REGISTER_CLIENT:
+                    mClient = msg.replyTo;  // activity로부터 가져온
+                    break;
             }
-        };
+            return false;
+        }
+    }));
+
+    private void sendMsgToActivity(int sendValue) {
+        try {
+            Bundle bundle = new Bundle();
+            ////// send msg to act
+            bundle.putInt("fromService", sendValue);
+            bundle.putString("test","abcdefg");
+            Message msg = Message.obtain(null, MSG_SEND_TO_ACTIVITY);
+            msg.setData(bundle);
+            mClient.send(msg);      // msg 보내기
+        } catch (RemoteException e) {
+        }
     }
+
+
+
+}
