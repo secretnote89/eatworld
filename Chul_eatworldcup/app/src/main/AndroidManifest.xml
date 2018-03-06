@@ -29,6 +29,12 @@
         <activity android:name=".selectedFoodActivity"/>
         <activity android:name=".SearchJava"/>
         <activity android:name=".restaurantResult"/>
+        <service android:name=".GpsService">
+            <intent-filter>
+                <action android:name="com.eatworld.GpsService"/>
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

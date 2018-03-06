@@ -1,4 +1,5 @@
 package com.chul.chul_eatworldcup;
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -7,12 +8,14 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -39,8 +42,6 @@ import com.nhn.android.maps.overlay.NMapPOIitem;
 import com.nhn.android.mapviewer.overlay.NMapMyLocationOverlay;
 import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
 import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
-
-import static com.chul.chul_eatworldcup.SplashActivity.GPSChk;
 
 public class MainActivity extends NMapActivity {
     private static final String CLIENT_ID = "wLIIkD1v3F7aYIpTjdXF";//"BDfRJ_qbTvaVbD3QdC6Y";
@@ -69,6 +70,7 @@ public class MainActivity extends NMapActivity {
     private Messenger mServiceMessenger = null;
     private boolean mIsBound;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //setTheme(R.style.AppTheme);
@@ -80,16 +82,8 @@ public class MainActivity extends NMapActivity {
 
 
         Log.d("abcTest","Main??");
-        Log.d("abcTest","GPSChk = "+GPSChk);
 
-
-
-
-        setStartService();
-
-        sendMessageToService("from main");
-
-            initMap();
+        initMap();
 
         /// origin
         final int img[] = {R.drawable.kor,R.drawable.jap,R.drawable.chi,R.drawable.asia,R.drawable.eng,R.drawable.dduk,R.drawable.chicken};
@@ -161,8 +155,13 @@ public class MainActivity extends NMapActivity {
 
     /** 서비스 시작 및 Messenger 전달 */
     private void setStartService() {
+        Log.d("abcTest","setStartService");
+
+
         startService(new Intent(MainActivity.this, GpsService.class));
-        bindService(new Intent(this, GpsService.class), mConnection, Context.BIND_AUTO_CREATE);
+        Log.d("abcTest","startService");
+        bindService(new Intent(MainActivity.this, GpsService.class), mConnection, Context.BIND_AUTO_CREATE);
+        Log.d("abcTest","bindService");
         mIsBound = true;
     }
 
@@ -186,11 +185,13 @@ public class MainActivity extends NMapActivity {
                 mServiceMessenger.send(msg);
             }
             catch (RemoteException e) {
+                Log.d("abcTest","exception = "+e);
             }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
+            Log.d("abcTest","onService Disconnected");
         }
     };
 
@@ -410,8 +411,8 @@ public class MainActivity extends NMapActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("abcTest","onResume");
-        mMapLocationManager.enableMyLocation(true);
+        Log.d("abcTest","onResume in Main");
+       /// mMapLocationManager.enableMyLocation(true);
     }
 
 
