@@ -15,7 +15,9 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -80,6 +82,9 @@ public class MainActivity extends NMapActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //20180307 rev
+        setStartService();
+
 
         Log.d("abcTest","Main??");
 
@@ -128,9 +133,6 @@ public class MainActivity extends NMapActivity {
                     Intent intent = new Intent(MainActivity.this,TournamentActivity.class);
                     intent.putExtra("Toggles",setToggle);
                     intent.putExtra("TogMatch",menuTextMatch);
-//                    intent.putExtra("lati2",lati2);
-//                    intent.putExtra("longti2",longti2);
-//                    intent.putExtra("dong",dong);
                     startActivity(intent);
                 }else{
                     Log.d("abcTest","Main button Click unchecked");
@@ -162,11 +164,16 @@ public class MainActivity extends NMapActivity {
         Log.d("abcTest","startService");
         bindService(new Intent(MainActivity.this, GpsService.class), mConnection, Context.BIND_AUTO_CREATE);
         Log.d("abcTest","bindService");
+
+        //20180307 rev
+        sendMessageToService("from main");
+
         mIsBound = true;
     }
 
     /** 서비스 정지 */
     private void setStopService() {
+        Log.d("abcTest","setStopService");
         if (mIsBound) {
             unbindService(mConnection);
             mIsBound = false;
@@ -203,9 +210,17 @@ public class MainActivity extends NMapActivity {
             switch (msg.what) {
                 case GpsService.MSG_SEND_TO_ACTIVITY:
                     int value1 = msg.getData().getInt("fromService");
-                    String value2 = msg.getData().getString("test");
-                    Log.d("abcTest","act : value1 "+value1);
-                    Log.d("abcTest","act : value2 "+value2);
+                    //String value2 = msg.getData().getString("test");
+
+                    if(value1==2){
+                        Log.d("abcTest","in Main value1 = "+value1);
+                        setStopService();
+                        noticeGPSChk();
+                    }else if(value1==3){
+                        Log.d("abcTest","in Main value1 = "+value1);
+                        noticeGPSChk();
+                    }
+
                     break;
             }
             return false;
@@ -214,6 +229,7 @@ public class MainActivity extends NMapActivity {
 
     /** Service 로 메시지를 보냄 */
     private void sendMessageToService(String str) {
+        Log.d("abcTest","str = "+str);
         if (mIsBound) {
             if (mServiceMessenger != null) {
                 try {
@@ -249,6 +265,7 @@ public class MainActivity extends NMapActivity {
         // location manager
         mMapLocationManager = new NMapLocationManager(this);
         mMapLocationManager.enableMyLocation(true);
+
         mMapLocationManager.setOnLocationChangeListener(onMyLocationChangeListener);
         ////
 
@@ -260,6 +277,7 @@ public class MainActivity extends NMapActivity {
 
         // compass manager
         ///mMapCompassManager = new NMapCompassManager(this);
+
     }
 
 
@@ -275,7 +293,7 @@ public class MainActivity extends NMapActivity {
             dong = (placeMark != null) ? placeMark.toString() : null;
             si = placeMark.siName;
             ///stop GPS & Naver Map
-            stopMyLocation();
+            //stopMyLocation();
             if (errInfo != null) {
                 Log.e("abcTest", "Failed to findPlacemarkAtLocation: error=" + errInfo.toString());
 
@@ -338,7 +356,9 @@ public class MainActivity extends NMapActivity {
         @Override
         public boolean onLocationChanged(NMapLocationManager locationManager, NGeoPoint myLocation) {
 
-            Log.d("abcTest","onMyLocationChangeListener");
+
+            Log.d("abcTest","onMyLocationChangeListener in Main");
+
             lati2= mMapLocationManager.getMyLocation().getLatitude();
             longti2= mMapLocationManager.getMyLocation().getLongitude();
 
@@ -347,6 +367,8 @@ public class MainActivity extends NMapActivity {
 
             findPlacemarkAtLocation(longti2, lati2);
             Log.d("abcTest","onMyLoc chan find dong");
+
+
 
             return true;
         }
@@ -412,9 +434,59 @@ public class MainActivity extends NMapActivity {
     protected void onResume() {
         super.onResume();
         Log.d("abcTest","onResume in Main");
-       /// mMapLocationManager.enableMyLocation(true);
+        super.setMapDataProviderListener(onDataProviderListener);
+        setStartService();
+        //startService(new Intent(MainActivity.this, GpsService.class));
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("abcTest","onDestroy");
+        setStopService();
+        //stopService(new Intent(MainActivity.this, GpsService.class));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("abcTest","onPause");
+    }
+
+
+    void noticeGPSChk(){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+        Log.d("abcTest","noticeGPSChk");
+        dialog.setTitle("GPS가 OFF 상태일때는 이용할 수 없습니다.");
+        dialog.setPositiveButton("설정하기", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intentGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivityForResult(intentGPS,2);
+            }
+        });
+        dialog.setNegativeButton("종료", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                moveTaskToBack(true);
+                finish();
+                android.os.Process.killProcess(android.os.Process.myPid());
+            }
+        });
+        dialog.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d("abcTest","onActivityResult");
+        if (requestCode==2) {
+            Log.d("abcTest","req code = "+requestCode);
+            Intent intentback = new Intent(MainActivity.this,MainActivity.class);
+            startActivity(intentback);
+        }
+    }
 
 }
 class MyAdapter extends BaseAdapter{

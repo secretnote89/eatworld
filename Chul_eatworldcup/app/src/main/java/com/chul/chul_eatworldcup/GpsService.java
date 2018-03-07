@@ -34,8 +34,8 @@ import java.util.Timer;
 
 public class GpsService extends Service {
 
-    public static boolean GPSChk = false;
-    public static boolean GPSOnOFFChk = false;
+    boolean GPSOnOFFChk = false;
+    boolean msgChk;
 
     public static final String PREFS_NAME = "MyPrefsFile";
 
@@ -56,9 +56,15 @@ public class GpsService extends Service {
 
         Log.d("abcTest","GpsService onCreate");
 
+        msgChk=false;
 
         ///startLocationUpdates();
         initializeLocationManager();
+        //setGPS();
+
+    }
+
+    public void setGPS(){
         try {
             locationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
@@ -83,13 +89,17 @@ public class GpsService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("abcTest","onStartCommand");
         super.onStartCommand(intent, flags, startId);
+        setGPS();
+
+        GPSOnOFFChk = locationManager.isProviderEnabled(locationManager.GPS_PROVIDER);
+        Log.d("abcTest", "GPSonOffchk in service= " + GPSOnOFFChk);
         return START_NOT_STICKY;
 
     }
 
     @Override
     public void onDestroy() {
-        Log.d("abcTest","onDestroy");
+        Log.d("abcTest","onDestroy in GpsService");
         super.onDestroy();
         if (locationManager != null) {
                 try {
@@ -120,76 +130,62 @@ public class GpsService extends Service {
             }else{
                 Log.d("abcTest","where ?= NETWORK_PROVIDER");
             }
-            String msg = "New Lati: "+location.getLatitude() + "New Longti: "+location.getLongitude();
-            double lati;
-            double longti;
-            lati = location.getLatitude();
-            longti = location.getLongitude();
-            ///locationManager.removeUpdates(mLocationListener);
-            Log.d("abcTest","msg = "+msg);
-            Log.d("abcTest","onLocationChange lati = "+lati);
-            Log.d("abcTest","onLocationChange longti = "+longti);
-//
-//            findPlacemarkAtLocation(longti, lati);
-//            Log.d("abcTest","after findPlaceMark");
+//            String msg = "New Lati: "+location.getLatitude() + "New Longti: "+location.getLongitude();
+//            double lati;
+//            double longti;
+//            lati = location.getLatitude();
+//            longti = location.getLongitude();
+//            ///locationManager.removeUpdates(mLocationListener);
+//            Log.d("abcTest","msg = "+msg);
+//            Log.d("abcTest","onLocationChange lati = "+lati);
+//            Log.d("abcTest","onLocationChange longti = "+longti);
 
         }
 
         @Override
         public void onProviderDisabled(String provider) {
 
-            noticeGPSChk();
+            //noticeGPSChk();
 
             Log.d("abcTest","onProviderDisabled");
 //            //Toast.makeText(getBaseContext(),"GPS is turn off!!!",Toast.LENGTH_SHORT).show();
 //            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 //            //intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 //            startActivityForResult(intent,1);
+
+//            Intent intentGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//            intentGPS.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+//            intentGPS.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(intentGPS);
+
+            if(msgChk) {
+             Log.d("abcTest","msgChk = "+msgChk);
+                sendMsgToActivity(2);
+            }
+
         }
 
         @Override
         public void onProviderEnabled(String provider) {
-            Toast.makeText(getBaseContext(),"GPS is turn on!!",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getBaseContext(),"GPS is turn on!!",Toast.LENGTH_SHORT).show();
             Log.d("abcTest","onProviderEnabled");
             ///goGPS();
+
+            Intent intentGPS = new Intent(GpsService.this,MainActivity.class);
+            intentGPS.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            intentGPS.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intentGPS);
+
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            Toast.makeText(getBaseContext(),"GPS status change!!",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getBaseContext(),"GPS status change!!",Toast.LENGTH_SHORT).show();
 
             Log.d("abcTest","onStatusChang");
         }
 
     };
-
-    void noticeGPSChk(){
-        AlertDialog.Builder dialog = new AlertDialog.Builder(GpsService.this);
-        Log.d("abcTest","noticeGPSChk");
-        dialog.setTitle("GPS가 OFF 상태일때는 이용할 수 없습니다.");
-        dialog.setPositiveButton("설정하기", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Log.d("abcTest","disable, noticeGPSChk, setting");
-
-                Intent intentGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                intentGPS.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intentGPS);
-                //startActivityForResult(intentGPS,1);
-            }
-        });
-        dialog.setNegativeButton("종료", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                ///moveTaskToBack(true);
-                ///finish();
-                android.os.Process.killProcess(android.os.Process.myPid());
-            }
-        });
-        dialog.show();
-    }
-
-
 
         @Nullable
         @Override
@@ -201,10 +197,15 @@ public class GpsService extends Service {
     private final Messenger mMessenger = new Messenger(new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            Log.d("abctest","ControlService - message what : "+msg.what +" , msg.obj "+ msg.obj);
+            Log.d("abcTest","ControlService - message what : "+msg.what +" , msg.obj "+ msg.obj);
             switch (msg.what) {
                 case MSG_REGISTER_CLIENT:
                     mClient = msg.replyTo;  // activity로부터 가져온
+                    msgChk = true;
+                    Log.d("abcTest","msg chk = "+msgChk);
+                    if(!GPSOnOFFChk){
+                        sendMsgToActivity(3);
+                    }
                     break;
             }
             return false;
@@ -216,7 +217,6 @@ public class GpsService extends Service {
             Bundle bundle = new Bundle();
             ////// send msg to act
             bundle.putInt("fromService", sendValue);
-            bundle.putString("test","abcdefg");
             Message msg = Message.obtain(null, MSG_SEND_TO_ACTIVITY);
             msg.setData(bundle);
             mClient.send(msg);      // msg 보내기
@@ -224,6 +224,18 @@ public class GpsService extends Service {
         }
     }
 
+
+
+    private void sendMsgToActivity(double lati, double longti) {
+        try {
+            Bundle bundle = new Bundle();
+            ////// send msg to act
+            Message msg = Message.obtain(null, MSG_SEND_TO_ACTIVITY);
+            msg.setData(bundle);
+            mClient.send(msg);      // msg 보내기
+        } catch (RemoteException e) {
+        }
+    }
 
 
 }

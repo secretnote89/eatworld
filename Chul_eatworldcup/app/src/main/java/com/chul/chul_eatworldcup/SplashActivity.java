@@ -62,7 +62,7 @@ public class SplashActivity extends Activity {
             //already get auth
             Log.d("abcTest","already get auth");
 
-            startService(new Intent(SplashActivity.this, GpsService.class));
+            //startService(new Intent(SplashActivity.this, GpsService.class));
             goNext();
         }
 
