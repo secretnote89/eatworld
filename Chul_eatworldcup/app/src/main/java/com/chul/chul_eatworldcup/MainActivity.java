@@ -128,11 +128,11 @@ public class MainActivity extends NMapActivity {
 
                 if(checked)
                 {
-
                     Log.d("abcTest","Main button Click checked");
                     Intent intent = new Intent(MainActivity.this,TournamentActivity.class);
                     intent.putExtra("Toggles",setToggle);
                     intent.putExtra("TogMatch",menuTextMatch);
+                    //
                     startActivity(intent);
                 }else{
                     Log.d("abcTest","Main button Click unchecked");
@@ -290,10 +290,13 @@ public class MainActivity extends NMapActivity {
 
             Log.d("abcTest", "onReverseGeocoderResponse: placeMark="
                     + ((placeMark != null) ? placeMark.toString() : null));
-            dong = (placeMark != null) ? placeMark.toString() : null;
-            si = placeMark.siName;
+            dong = (placeMark != null) ? placeMark.toString() : "test";
+            si = (placeMark!=null)? placeMark.siName.toString():"test";
+
             ///stop GPS & Naver Map
-            //stopMyLocation();
+            //if(placeMark!=null)
+            stopMyLocation();
+
             if (errInfo != null) {
                 Log.e("abcTest", "Failed to findPlacemarkAtLocation: error=" + errInfo.toString());
 
@@ -365,10 +368,11 @@ public class MainActivity extends NMapActivity {
             Log.d("abcTest","onMyLoc chan lati2 = "+lati2);
             Log.d("abcTest","onMyLoc chan longti2 = "+longti2);
 
+
+
+            if(lati2!=0)
             findPlacemarkAtLocation(longti2, lati2);
             Log.d("abcTest","onMyLoc chan find dong");
-
-
 
             return true;
         }
@@ -436,6 +440,7 @@ public class MainActivity extends NMapActivity {
         Log.d("abcTest","onResume in Main");
         super.setMapDataProviderListener(onDataProviderListener);
         setStartService();
+        mMapLocationManager.enableMyLocation(true);
         //startService(new Intent(MainActivity.this, GpsService.class));
     }
 
