@@ -53,9 +53,6 @@ public class selectedFoodActivity extends Activity {
     ProgressBar loading_indicator;
     Handler mhandelr = new Handler();
 
-    int cnt2=0;
-
-
     int cur;
     ArrayList<String> SelectedFoodList = new ArrayList<String>();
     ArrayList<String>gridFoodName_sef = new ArrayList<String>();
@@ -67,28 +64,31 @@ public class selectedFoodActivity extends Activity {
 
     int count=0;
 
-    //for searching
-    TimerTask tt = new TimerTask() {
+    Dialog mdialog;
+
+    class MyTimerTask extends TimerTask {
         @Override
         public void run() {
             count++;
             Log.d("abcTest","tt in selecActi count = "+count);
             goSearch();
         }
-    };
+    }
 
     void notice(){
-        AlertDialog.Builder dialog = new AlertDialog.Builder(selectedFoodActivity.this);
+        AlertDialog.Builder mdialog = new AlertDialog.Builder(selectedFoodActivity.this);
             Log.d("abcTest","selectedFoodActi Timer tt");
-            dialog.setTitle("죄송합니다.\n 재검색 하시겠습니까?");
-            dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+        mdialog.setTitle("죄송합니다.\n재검색 하시겠습니까?");
+        mdialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    timer = new Timer();
+                    timer.schedule(new MyTimerTask(), 10, 1 * 1000);
+                    Log.d("abcTest","재검색 확인, timer = "+timer);
                     goSearch();
-
                 }
             });
-            dialog.setNegativeButton("카테고리로 돌아가기", new DialogInterface.OnClickListener() {
+        mdialog.setNegativeButton("카테고리로 돌아가기", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 //                    moveTaskToBack(true);
@@ -98,38 +98,9 @@ public class selectedFoodActivity extends Activity {
                     startActivity(intentback);
                 }
             });
-            dialog.show();
+        mdialog.show();
 
     }
-
-//    TimerTask tt2 = new TimerTask() {
-//        @Override
-//        public void run() {
-//            timer.cancel();
-//            AlertDialog.Builder dialog = new AlertDialog.Builder(selectedFoodActivity.this);
-//            Log.d("abcTest","selectedFoodActi Timer tt");
-//            dialog.setTitle("죄송합니다. 재검색 하시겠습니까?");
-//            dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    Intent intentback = new Intent(selectedFoodActivity.this,selectedFoodActivity.class);
-//                    startActivity(intentback);
-//                }
-//            });
-//            dialog.setNegativeButton("카테고리로 돌아가기", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-////                    moveTaskToBack(true);
-////                    finish();
-////                    android.os.Process.killProcess(android.os.Process.myPid());
-//                    Intent intentback = new Intent(selectedFoodActivity.this,MainActivity.class);
-//                    startActivity(intentback);
-//                }
-//            });
-//            dialog.show();
-//
-//        }
-//    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -314,11 +285,11 @@ public class selectedFoodActivity extends Activity {
 
     public void tour_chk(int num){
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(selectedFoodActivity.this);
+        AlertDialog.Builder mdialog = new AlertDialog.Builder(selectedFoodActivity.this);
 
 
 
-        dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+        mdialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 //                moveTaskToBack(true);
@@ -328,7 +299,7 @@ public class selectedFoodActivity extends Activity {
 //                android.os.Process.killProcess(android.os.Process.myPid());
             }
         });
-        dialog.setNegativeButton("토너먼트 다시하기", new DialogInterface.OnClickListener() {
+        mdialog.setNegativeButton("토너먼트 다시하기", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
@@ -345,11 +316,11 @@ public class selectedFoodActivity extends Activity {
         {
             showCustomToast("토너먼트 시작!",500);
         }else if(num==2){
-            dialog.setTitle("결승!!");
-            dialog.show();
+            mdialog.setTitle("결승!!");
+            mdialog.show();
         }else{
-            dialog.setTitle(num+"강!");
-            dialog.show();
+            mdialog.setTitle(num+"강!");
+            mdialog.show();
         }
     }
         public void goSearch(){
@@ -358,19 +329,11 @@ public class selectedFoodActivity extends Activity {
             public void run() {
                 Log.d("abcTest2","selectedFood Activity thread");
 
-
-                ///Message message = handler.obtainMessage();
-                ///handler.sendEmptyMessage(1);
-
-                    //// progress로 바꾸기 예정
                     Log.d("abcTest","selected test lati2 = "+lati2);
                     Log.d("abcTest","selected test longti2 = "+longti2);
                     Log.d("abcTest","selected test dong = "+dong);
                     //rev 20180308
                 if(dong.equals("test") || dong==null){
-
-                    //dialog = new Dialog(mContext);
-                    //dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
                     Log.d("abcTest","setBackground Transparent in selectedFoodActivity");
                     mhandelr.post(new Runnable() {
@@ -378,39 +341,29 @@ public class selectedFoodActivity extends Activity {
                         public void run() {
                             //rev 20180308
                             Log.d("abcTest","progress if in selectedActi");
-                            if(first){
-                                Log.d("abcTest","first in selected Act");
+                            if(first) {
+                                Log.d("abcTest", "first in selected Act");
                                 first = false;
-                                timer.schedule(tt,10,1*1000);
+                                    timer.schedule(new MyTimerTask(), 10, 1 * 1000);
                                 View v = LayoutInflater.from(getApplicationContext()).inflate(R.layout.progress, null);
                                 setContentView(v);
                             }
 
-                            if(count>60){
+                            if(count>6){
                                 timer.cancel();
                                 count=0;
-                                first=true;
+                                Log.d("abcTest","count>60, count = "+count+"first = "+first);
                                 notice();
                             }
-
-
-
-                            cnt2+=10;
-//                            progressBar.setVisibility(View.VISIBLE);
-//                            progressBar.setProgress(cnt2);
-//                            tournimgv1.setVisibility(View.GONE);
-//                            tourtv1.setVisibility(View.GONE);
-                            //loading_indicator.setProgress(cnt2);
-
                         }
                     });
 
                     //rev 20180308
-                    Log.d("abcTest","selected test lati2 = "+lati2);
-                    Log.d("abcTest","selected test longti2 = "+longti2);
-                    Log.d("abcTest","selected test dong = "+dong);
+//                    Log.d("abcTest","selected test lati2 = "+lati2);
+//                    Log.d("abcTest","selected test longti2 = "+longti2);
+//                    Log.d("abcTest","selected test dong = "+dong);
                 }else{
-                    //dialog.dismiss();
+                    Log.d("abcTest","go search else in selected");
                     timer.cancel();
                     Log.d("abcTest","selected else lati2 = "+lati2);
                     Log.d("abcTest","selected else longti2 = "+longti2);
@@ -435,7 +388,6 @@ public class selectedFoodActivity extends Activity {
         }catch (InterruptedException e){
             e.printStackTrace();
         }
-        ///Thread.interrupted();
     }
 
 
@@ -448,5 +400,9 @@ public class selectedFoodActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d("abcTest","onDestroy in selectedFoodActi");
+        Log.d("abcTest","mdialog =? "+mdialog);
+        if(mdialog!=null)
+        mdialog.dismiss();
     }
+
 }

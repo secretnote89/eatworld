@@ -1,9 +1,11 @@
 package com.chul.chul_eatworldcup;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -18,12 +20,16 @@ import com.nhn.android.maps.NMapActivity;
 import com.nhn.android.maps.NMapCompassManager;
 import com.nhn.android.maps.NMapController;
 import com.nhn.android.maps.NMapLocationManager;
+import com.nhn.android.maps.NMapOverlay;
+import com.nhn.android.maps.NMapOverlayItem;
 import com.nhn.android.maps.NMapView;
 import com.nhn.android.maps.maplib.NGeoPoint;
 import com.nhn.android.maps.nmapmodel.NMapError;
 import com.nhn.android.maps.nmapmodel.NMapPlacemark;
 import com.nhn.android.maps.overlay.NMapPOIdata;
 import com.nhn.android.maps.overlay.NMapPOIitem;
+import com.nhn.android.mapviewer.overlay.NMapCalloutCustomOverlay;
+import com.nhn.android.mapviewer.overlay.NMapCalloutOverlay;
 import com.nhn.android.mapviewer.overlay.NMapMyLocationOverlay;
 import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
 import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
@@ -83,6 +89,7 @@ public class restaurantResult extends NMapActivity{
     private MapContainerView mMapContainerView;
 
     NGeoPoint nGeoPoint = new NGeoPoint();
+    Dialog mdialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,7 +102,7 @@ public class restaurantResult extends NMapActivity{
         // set Client ID for Open MapViewer Library
         mMapView.setClientId(CLIENT_ID);
 
-        Log.d("abcdTest","rest.java onCreate");
+        Log.d("abcTest","rest.java onCreate");
 
         /// get previous data
 
@@ -112,7 +119,7 @@ public class restaurantResult extends NMapActivity{
 
             Log.d("abcTest","resta in if");
 
-            onDestroy();
+            searchExpand();
         }else{
             Log.d("abcTest","resta in else");
 
@@ -121,36 +128,36 @@ public class restaurantResult extends NMapActivity{
             Collections.shuffle(restList);
 
             rtv1 = (TextView)findViewById(R.id.rtv1);
-            Log.d("abcdTest",restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
+            Log.d("abcTest",restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
             //rtv1.setText(restList.get(0).getResNM()+"\n"+restList.get(0).getResCategory()+"\n"+restList.get(0).getResPhonNum()+"\n"+restList.get(0).getResAddr()+"\n"+restList.get(0).getResMapX()+"\n"+restList.get(0).getResMapY());
             rtv1.setText(restList.get(0).getResNM());
             // finish();
 
-            int x = Integer.parseInt(restList.get(0).getResMapX());
-            int y = Integer.parseInt(restList.get(0).getResMapY());
+//            int x = Integer.parseInt(restList.get(0).getResMapX());
+//            int y = Integer.parseInt(restList.get(0).getResMapY());
+//
+//
+//            Log.d("abcTest","x = "+x);
+//            Log.d("abcTest","y = "+y);
+//
+//            GeoPoint oKA = new GeoPoint(x,y);
+//            GeoPoint oGeo = GeoTrans.convert(GeoTrans.KATEC, GeoTrans.GEO, oKA);
+//            Double lat = oGeo.getY();
+//            Double lng = oGeo.getX();
+//
+//
+//            GeoPoint oLatLng = new GeoPoint(lat.intValue(), lng.intValue());  // 맵뷰에서 사용가능한 좌표계
+//
+//            double lati = lat;
+//            double longti = lng;
 
-
-            Log.d("abcTest","x = "+x);
-            Log.d("abcTest","y = "+y);
-
-            GeoPoint oKA = new GeoPoint(x,y);
-            GeoPoint oGeo = GeoTrans.convert(GeoTrans.KATEC, GeoTrans.GEO, oKA);
-            Double lat = oGeo.getY() * 1E6;
-            Double lng = oGeo.getX() * 1E6;
-            GeoPoint oLatLng = new GeoPoint(lat.intValue(), lng.intValue());  // 맵뷰에서 사용가능한 좌표계
-
-
-            Log.d("abcTest","oLatLng x = "+oLatLng.getX()+"oLatLng y = "+oLatLng.getY());
-
-            double lati = lat;
-            double longti = lng;
-
+            double lati = Double.parseDouble(restList.get(0).getResMapX());
+            double longti = Double.parseDouble(restList.get(0).getResMapY());
 
             Log.d("abcTest","rest R lati = "+lati);
             Log.d("abcTest","rest R longti = "+longti);
             /////
-            Log.d("abcTest","rest R dong = "+dong);
-            Log.d("abcTest","rest R si = "+si);
+            Log.d("abcTest","rest R addr = "+restList.get(0).getResAddr());
 
             MapContainer = (LinearLayout)this.findViewById(R.id.MapContainer);
 
@@ -182,8 +189,10 @@ public class restaurantResult extends NMapActivity{
             // create overlay manager
             mOverlayManager = new NMapOverlayManager(this, mMapView, mMapViewerResourceProvider);
 
-            int markerId = NMapPOIflagType.PIN;
-
+//            // register callout overlay listener to customize it.
+//            mOverlayManager.setOnCalloutOverlayListener(onCalloutOverlayListener);
+//            // register callout overlay view listener to customize it.
+//            mOverlayManager.setOnCalloutOverlayViewListener(onCalloutOverlayViewListener);
 
             // compass manager
             mMapCompassManager = new NMapCompassManager(this);
@@ -191,12 +200,17 @@ public class restaurantResult extends NMapActivity{
             // create my location overlay
             mMyLocationOverlay = mOverlayManager.createMyLocationOverlay(mMapLocationManager, mMapCompassManager);
 
+            int markerId = NMapPOIflagType.PIN;
 
     // set POI data
-            NMapPOIdata poiData = new NMapPOIdata(1, mMapViewerResourceProvider);
-            poiData.beginPOIdata(1);
+            Log.d("abcTest","setPOI data");
+            NMapPOIdata poiData = new NMapPOIdata(2, mMapViewerResourceProvider);
+            poiData.beginPOIdata(2);
             ///poiData.addPOIitem(lati, longti, restList.get(0).getResNM(), markerId, 0);
-            poiData.addPOIitem(oLatLng.getX(), longti, restList.get(0).getResNM(), markerId, 0);
+            poiData.addPOIitem(longti, lati, "what?"+restList.get(0).getResNM(), markerId, 0);
+            poiData.addPOIitem(127.0630205,37.5091300,"pizza 777-111",markerId,0);
+            poiData.addPOIitem(127.0600000,37.4091300,"pizza2222",markerId,0);
+
             poiData.endPOIdata();
 
     // create POI data overlay
@@ -211,20 +225,100 @@ public class restaurantResult extends NMapActivity{
 
            // DEBUG=true;
 
+            // register callout overlay listener to customize it.
+            //mOverlayManager.setOnCalloutOverlayListener(onCalloutOverlayListener);
+
         }
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    private final NMapOverlayManager.OnCalloutOverlayListener onCalloutOverlayListener = new NMapOverlayManager.OnCalloutOverlayListener() {
+
+        @Override
+        public NMapCalloutOverlay onCreateCalloutOverlay(NMapOverlay itemOverlay, NMapOverlayItem overlayItem,
+                                                         Rect itemBounds) {
+
+            // handle overlapped items
+            if (itemOverlay instanceof NMapPOIdataOverlay) {
+                NMapPOIdataOverlay poiDataOverlay = (NMapPOIdataOverlay)itemOverlay;
+
+                // check if it is selected by touch event
+                if (!poiDataOverlay.isFocusedBySelectItem()) {
+                    int countOfOverlappedItems = 1;
+
+                    NMapPOIdata poiData = poiDataOverlay.getPOIdata();
+                    for (int i = 0; i < poiData.count(); i++) {
+                        NMapPOIitem poiItem = poiData.getPOIitem(i);
+
+                        // skip selected item
+                        if (poiItem == overlayItem) {
+                            continue;
+                        }
+
+                        // check if overlapped or not
+                        if (Rect.intersects(poiItem.getBoundsInScreen(), overlayItem.getBoundsInScreen())) {
+                            countOfOverlappedItems++;
+                        }
+                    }
+
+                    if (countOfOverlappedItems > 1) {
+                        String text = countOfOverlappedItems + " overlapped items for " + overlayItem.getTitle();
+                        Log.d("abcTest","countOfOverlappedItems >1 in restResult");
+                        return null;
+                    }
+                }
+            }
+
+            // use custom old callout overlay
+            if (overlayItem instanceof NMapPOIitem) {
+                NMapPOIitem poiItem = (NMapPOIitem)overlayItem;
+
+                if (poiItem.showRightButton()) {
+                    return new NMapCalloutCustomOldOverlay(itemOverlay, overlayItem, itemBounds,
+                            mMapViewerResourceProvider);
+                }
+            }
+
+            // use custom callout overlay
+            return new NMapCalloutCustomOverlay(itemOverlay, overlayItem, itemBounds, mMapViewerResourceProvider);
+
+            // set basic callout overlay
+            //return new NMapCalloutBasicOverlay(itemOverlay, overlayItem, itemBounds);
+        }
+
+    };
+
+    private final NMapOverlayManager.OnCalloutOverlayViewListener onCalloutOverlayViewListener = new NMapOverlayManager.OnCalloutOverlayViewListener() {
+
+        @Override
+        public View onCreateCalloutOverlayView(NMapOverlay itemOverlay, NMapOverlayItem overlayItem, Rect itemBounds) {
+
+            if (overlayItem != null) {
+                Log.d("abcTest","onCalloutOverlayViewListener. onCreateCalloutOverlayView");
+                // [TEST] 말풍선 오버레이를 뷰로 설정함
+                String title = overlayItem.getTitle();
+                if (title != null && title.length() > 5) {
+                    return new NMapCalloutCustomOverlayView(restaurantResult.this, itemOverlay, overlayItem, itemBounds);
+                }
+            }
+
+            // null을 반환하면 말풍선 오버레이를 표시하지 않음
+            return null;
+        }
+
+    };
+
+
+
+    void searchExpand(){
         stopMyLocation();
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(restaurantResult.this);
+        Log.d("abcTest","searchExpand() in resResultacti");
+        AlertDialog.Builder mdialog = new AlertDialog.Builder(restaurantResult.this);
 
-        dialog.setTitle("주변에 선택한 음식점이 없습니다..");
+        mdialog.setTitle("주변에 선택한 음식점이 없습니다..");
 
-        dialog.setPositiveButton("토너먼트 다시하기", new DialogInterface.OnClickListener() {
+        mdialog.setPositiveButton("토너먼트 다시하기", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent00 = new Intent(restaurantResult.this,MainActivity.class);
@@ -232,7 +326,13 @@ public class restaurantResult extends NMapActivity{
                 startActivity(intent00);
             }
         });
-        dialog.show();
+        mdialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("abcTest","onDestroy in resResult");
     }
 
 
@@ -241,9 +341,7 @@ public class restaurantResult extends NMapActivity{
 
         @Override
         public void onCalloutClick(NMapPOIdataOverlay poiDataOverlay, NMapPOIitem item) {
-            if (DEBUG) {
-                Log.d("abcdTest", "onCalloutClick: title=" + item.getTitle());
-            }
+                Log.d("abcTest", "onCalloutClick: title=" + item.getTitle());
 
             // [[TEMP]] handle a click event of the callout
             Toast.makeText(restaurantResult.this, "onCalloutClick: " + item.getTitle(), Toast.LENGTH_LONG).show();
@@ -251,13 +349,11 @@ public class restaurantResult extends NMapActivity{
 
         @Override
         public void onFocusChanged(NMapPOIdataOverlay poiDataOverlay, NMapPOIitem item) {
-            if (DEBUG) {
                 if (item != null) {
-                    Log.d("abcdTest", "onFocusChanged: " + item.toString());
+                    Log.d("abcTest", "onFocusChanged: " + item.toString());
                 } else {
-                    Log.d("abcdTest", "onFocusChanged: ");
+                    Log.d("abcTest", "onFocusChanged: ");
                 }
-            }
         }
     };
 
@@ -277,7 +373,8 @@ public class restaurantResult extends NMapActivity{
 
         mMapController.setMapViewMode(viewMode);
         mMapController.setMapCenter(new NGeoPoint(longti2, lati2), level);
-
+        Log.d("abcTest","new Map center Test");
+        //mMapController.setMapCenter(new NGeoPoint(127.0630205,37.5091300), level);
         if (mIsMapEnlared) {
             mMapView.setScalingFactor(2.0F);
         } else {
@@ -325,10 +422,11 @@ public class restaurantResult extends NMapActivity{
 
             if (errorInfo == null) { // success
                 // restore map view state such as map center position and zoom level.
+                Log.d("abcTest","onMapViewStateChangeListener in resResult");
                 restoreInstanceState();
 
             } else { // fail
-                Log.e("bcdTest", "onFailedToInitializeWithError: " + errorInfo.toString());
+                Log.e("abcTest", "onFailedToInitializeWithError: " + errorInfo.toString());
 
                 Toast.makeText(restaurantResult.this, errorInfo.toString(), Toast.LENGTH_LONG).show();
             }
@@ -337,21 +435,21 @@ public class restaurantResult extends NMapActivity{
         @Override
         public void onAnimationStateChange(NMapView mapView, int animType, int animState) {
             if (DEBUG) {
-                Log.d("bcdTest", "onAnimationStateChange: animType=" + animType + ", animState=" + animState);
+                Log.d("abcTest", "onAnimationStateChange: animType=" + animType + ", animState=" + animState);
             }
         }
 
         @Override
         public void onMapCenterChange(NMapView mapView, NGeoPoint center) {
             if (DEBUG) {
-                Log.d("bcdTest", "onMapCenterChange: center=" + center.toString());
+                Log.d("abcTest", "onMapCenterChange: center=" + center.toString());
             }
         }
 
         @Override
         public void onZoomLevelChange(NMapView mapView, int level) {
             if (DEBUG) {
-                Log.d("bcdTest", "onZoomLevelChange: level=" + level);
+                Log.d("abcTest", "onZoomLevelChange: level=" + level);
             }
         }
 
@@ -367,7 +465,7 @@ public class restaurantResult extends NMapActivity{
         @Override
         public boolean onLocationChanged(NMapLocationManager locationManager, NGeoPoint myLocation) {
 
-            Log.d("bcdTest","onMyLocationChangeListener");
+            Log.d("abcTest","onMyLocationChangeListener in resResult");
 
             ///nGeoPoint= mMapLocationManager.getMyLocation();
 
@@ -401,6 +499,7 @@ public class restaurantResult extends NMapActivity{
         }
     };
     private void stopMyLocation() {
+        Log.d("abcTest","stopMyLocation in resResult");
         if (mMyLocationOverlay != null) {
             mMapLocationManager.disableMyLocation();
 
@@ -508,5 +607,27 @@ public class restaurantResult extends NMapActivity{
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Log.d("abcTest","onBackpressed");
 
+        AlertDialog.Builder mdialog = new AlertDialog.Builder(restaurantResult.this);
+        mdialog.setTitle("카테고리로 돌아가시겠습니까?");
+        mdialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(restaurantResult.this,MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent);
+            }
+        });
+        mdialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        mdialog.show();
+    }
 }

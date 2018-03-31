@@ -31,6 +31,7 @@ import java.util.TimerTask;
 
 public class SplashActivity extends Activity {
 
+
     public static final String PREFS_NAME = "MyPrefsFile";
     public static boolean isFirstRun=true;
 

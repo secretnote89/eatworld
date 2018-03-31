@@ -1,6 +1,7 @@
 package com.chul.chul_eatworldcup;
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -72,6 +73,7 @@ public class MainActivity extends NMapActivity {
     private Messenger mServiceMessenger = null;
     private boolean mIsBound;
 
+    Dialog mdialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,13 +84,13 @@ public class MainActivity extends NMapActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initMap();
+
         //20180307 rev
         setStartService();
 
 
         Log.d("abcTest","Main??");
-
-        initMap();
 
         /// origin
         final int img[] = {R.drawable.kor,R.drawable.jap,R.drawable.chi,R.drawable.asia,R.drawable.eng,R.drawable.dduk,R.drawable.chicken};
@@ -293,9 +295,16 @@ public class MainActivity extends NMapActivity {
             dong = (placeMark != null) ? placeMark.toString() : "test";
             si = (placeMark!=null)? placeMark.siName.toString():"test";
 
+            Log.d("abcTest","si = ? " +si);
+
             ///stop GPS & Naver Map
             //if(placeMark!=null)
             stopMyLocation();
+            if(!(si.equals("test"))){
+                Log.d("abcTest","MainActi setstopService");
+                setStopService();
+            }
+
 
             if (errInfo != null) {
                 Log.e("abcTest", "Failed to findPlacemarkAtLocation: error=" + errInfo.toString());
@@ -371,8 +380,11 @@ public class MainActivity extends NMapActivity {
 
 
             if(lati2!=0)
-            findPlacemarkAtLocation(longti2, lati2);
-            Log.d("abcTest","onMyLoc chan find dong");
+            {
+                findPlacemarkAtLocation(longti2, lati2);
+                Log.d("abcTest","onMyLoc chan find dong");
+            }
+
 
             return true;
         }
@@ -412,9 +424,9 @@ public class MainActivity extends NMapActivity {
 
         Log.d("abcTest","onBackpressed");
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-        dialog.setTitle("종료하시겠습니까?");
-        dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+        AlertDialog.Builder mdialog = new AlertDialog.Builder(MainActivity.this);
+        mdialog.setTitle("종료하시겠습니까?");
+        mdialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 moveTaskToBack(true);
@@ -424,13 +436,13 @@ public class MainActivity extends NMapActivity {
                 android.os.Process.killProcess(android.os.Process.myPid());
             }
         });
-        dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+        mdialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
         });
-        dialog.show();
+        mdialog.show();
 
     }
 
@@ -438,8 +450,7 @@ public class MainActivity extends NMapActivity {
     protected void onResume() {
         super.onResume();
         Log.d("abcTest","onResume in Main");
-        super.setMapDataProviderListener(onDataProviderListener);
-        setStartService();
+        //setStartService();
         mMapLocationManager.enableMyLocation(true);
         //startService(new Intent(MainActivity.this, GpsService.class));
     }
@@ -450,6 +461,8 @@ public class MainActivity extends NMapActivity {
         Log.d("abcTest","onDestroy");
         setStopService();
         //stopService(new Intent(MainActivity.this, GpsService.class));
+        if(mdialog!=null)
+        mdialog.dismiss();
     }
 
     @Override
@@ -460,17 +473,17 @@ public class MainActivity extends NMapActivity {
 
 
     void noticeGPSChk(){
-        AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder mdialog = new AlertDialog.Builder(MainActivity.this);
         Log.d("abcTest","noticeGPSChk");
-        dialog.setTitle("GPS가 OFF 상태일때는 이용할 수 없습니다.");
-        dialog.setPositiveButton("설정하기", new DialogInterface.OnClickListener() {
+        mdialog.setTitle("GPS가 OFF 상태일때는 이용할 수 없습니다.");
+        mdialog.setPositiveButton("설정하기", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent intentGPS = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivityForResult(intentGPS,2);
             }
         });
-        dialog.setNegativeButton("종료", new DialogInterface.OnClickListener() {
+        mdialog.setNegativeButton("종료", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 moveTaskToBack(true);
@@ -478,7 +491,7 @@ public class MainActivity extends NMapActivity {
                 android.os.Process.killProcess(android.os.Process.myPid());
             }
         });
-        dialog.show();
+        mdialog.show();
     }
 
     @Override
