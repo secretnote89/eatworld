@@ -17,6 +17,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.Settings;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,8 +52,10 @@ import java.util.TimerTask;
 
 public class MainActivity extends NMapActivity {
 
-
-    private ProgressDialog progressDialog;
+    //set ProgressBar rev 20181129
+    private View header;
+    private ProgressBar mprogressbar;
+    private TextView texttest;
 
     private Dialog mDialog=null;
 
@@ -87,8 +91,7 @@ public class MainActivity extends NMapActivity {
     int count=0;
 
     Intent mintent;
-
-    View v = LayoutInflater.from(getApplicationContext()).inflate(R.layout.progress, null);
+//
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +127,15 @@ public class MainActivity extends NMapActivity {
 
         final TextView tv = (TextView)findViewById(R.id.tv1);
 
-
+        ///
+        Log.d("abcTest","layoutInflater for progressbar");
+        header = getLayoutInflater().inflate(R.layout.progress,null,false);
+        mprogressbar = (ProgressBar)header.findViewById(R.id.loading_indicator);
+        /*texttest = (TextView)header.findViewById(R.id.textTest);
+        Toast.makeText(getApplicationContext(),"texttest = "+texttest.getText(),Toast.LENGTH_SHORT).show();
+*/
+        Log.d("abcTest","setVisibility");
+        mprogressbar.setVisibility(View.VISIBLE);
         ///////
         Button goBtn = (Button)this.findViewById(R.id.btn_menu);
 
@@ -195,9 +206,7 @@ public class MainActivity extends NMapActivity {
                                 Log.d("abcTest", "first in main Act");
                                 first = false;
                                 //timer.schedule(new MyTimerTask(), 10, 1 * 1000);
-
-                                v.setVisibility(View.VISIBLE);
-
+                                mprogressbar.setVisibility(View.VISIBLE);
                             }
 
 /*                            if(count>6){
@@ -234,7 +243,9 @@ public class MainActivity extends NMapActivity {
                     });*/
 
                 }else{
-                    v.setVisibility(View.GONE);
+                    //
+                    Log.d("abcTest","setVisible gone");
+                    mprogressbar.setVisibility(View.GONE);
                     timer.cancel();
                     Log.d("abcTest","selected else lati2 = "+lati2);
                     Log.d("abcTest","selected else longti2 = "+longti2);
@@ -263,21 +274,6 @@ public class MainActivity extends NMapActivity {
             goSearch(mintent);
         }
     }
-
-    // Method to show Progress bar
-    private void showProgressDialogWithTitle() {
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        //Without this user can hide loader by tapping outside screen
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-    }
-
-    // Method to hide/ dismiss Progress bar
-    private void hideProgressDialogWithTitle() {
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.dismiss();
-    }
-
 
     void notice(final Intent nintent){
         AlertDialog.Builder mdialog = new AlertDialog.Builder(MainActivity.this);
@@ -619,10 +615,10 @@ public class MainActivity extends NMapActivity {
         super.onPause();
         Log.d("abcTest","onPause");
 
-        if (progressDialog != null && progressDialog.isShowing()) {
+/*        if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
             progressDialog = null;
-        }
+        }*/
 
         if(mDialog != null && mDialog.isShowing()) {
             mDialog.dismiss();

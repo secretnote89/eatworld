@@ -17,7 +17,7 @@
         android:theme="@style/AppTheme"
         android:largeHeap="true">
 
-        <activity android:name=".SplashActivity">
+        <activity android:name=".ProgressTest">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,6 +29,7 @@
         <activity android:name=".selectedFoodActivity"/>
         <activity android:name=".SearchJava"/>
         <activity android:name=".restaurantResult"/>
+        <activity android:name=".SplashActivity"/>
         <service android:name=".GpsService">
             <intent-filter>
                 <action android:name="com.eatworld.GpsService"/>
