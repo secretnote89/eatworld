@@ -8,27 +8,45 @@
     android:orientation="vertical"
     android:background="@color/colorWhite">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_menu"
-        android:text="@string/menuWorldCup"/>
-
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp"
+        android:layout_weight="4">
     <GridView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/gv1"
         android:horizontalSpacing="10dp"
         android:numColumns="3"
-        android:verticalSpacing="20dp"
-        android:columnWidth="100dp"
+        android:verticalSpacing="15dp"
+        android:columnWidth="90dp"
         android:listSelector="@drawable/gridview_selector"
         />
+
+
     </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="0dp"
+        android:padding="0dp">
+
+        <Button
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            android:id="@+id/btn_menu"
+            android:text="@string/menuWorldCup"
+            android:textSize="20dp"
+            android:background="@color/colorLightSkyBlue"/>
+
+
+    </RelativeLayout>
 
 
 </LinearLayout>

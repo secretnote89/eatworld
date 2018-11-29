@@ -177,7 +177,11 @@ public class selectedFoodActivity extends Activity {
                 @Override
                 public void onClick(View v) {
 
-                    goSearch();
+                   //goSearch();
+                    Intent intent3 = new Intent(selectedFoodActivity.this,SearchJava.class);
+                    intent3.putExtra("foodName",tourtv1.getText().toString());
+                    intent3.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivity(intent3);
 
                     }
             });

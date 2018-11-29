@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">오늘 뭐먹지?</string>
     <string name="scienple">SCIENPLE</string>
-    <string name="menuWorldCup">메뉴 월드컵</string>
+    <string name="menuWorldCup"><b>메뉴월드컵 시작</b></string>
     <string name="kimchizz">김치찌개</string>
     <string name="backban">백반</string>
     <string name="sundaeguk">순대국</string>

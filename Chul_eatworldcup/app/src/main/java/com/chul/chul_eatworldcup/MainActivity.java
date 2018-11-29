@@ -1,7 +1,7 @@
 package com.chul.chul_eatworldcup;
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,27 +9,26 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,9 +45,17 @@ import com.nhn.android.mapviewer.overlay.NMapMyLocationOverlay;
 import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
 import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MainActivity extends NMapActivity {
+
+
+    private ProgressDialog progressDialog;
+
+    private Dialog mDialog=null;
+
     private static final String CLIENT_ID = "wLIIkD1v3F7aYIpTjdXF";//"BDfRJ_qbTvaVbD3QdC6Y";
-    private static final String clientSecret = "CIMd9Lu_vl";//"4fwk2LFzPr";
 
     public static String dong="test";
     public static String si="test";
@@ -73,12 +80,18 @@ public class MainActivity extends NMapActivity {
     private Messenger mServiceMessenger = null;
     private boolean mIsBound;
 
-    Dialog mdialog;
+//for gosearch
+    Handler mhandelr = new Handler();
+    boolean first = true;   // rev 20181101 =ture;
+    Timer timer = new Timer();
+    int count=0;
+
+    Intent mintent;
+
+    View v = LayoutInflater.from(getApplicationContext()).inflate(R.layout.progress, null);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //setTheme(R.style.AppTheme);
-
 
         setTitle("오늘 뭐먹지?");
         super.onCreate(savedInstanceState);
@@ -88,7 +101,6 @@ public class MainActivity extends NMapActivity {
 
         //20180307 rev
         setStartService();
-
 
         Log.d("abcTest","Main??");
 
@@ -127,15 +139,15 @@ public class MainActivity extends NMapActivity {
                     }
                 }
 
-
                 if(checked)
                 {
                     Log.d("abcTest","Main button Click checked");
-                    Intent intent = new Intent(MainActivity.this,TournamentActivity.class);
-                    intent.putExtra("Toggles",setToggle);
-                    intent.putExtra("TogMatch",menuTextMatch);
-                    //
-                    startActivity(intent);
+                    mintent = new Intent(MainActivity.this,TournamentActivity.class);
+                    mintent.putExtra("Toggles",setToggle);
+                    mintent.putExtra("TogMatch",menuTextMatch);
+                    goSearch(mintent);
+//                    startActivity(intent);
+                    finish();
                 }else{
                     Log.d("abcTest","Main button Click unchecked");
                     Toast.makeText(getApplicationContext(),"카테고리를 선택해주세요",Toast.LENGTH_SHORT).show();
@@ -156,11 +168,147 @@ public class MainActivity extends NMapActivity {
     }
 
 
+    public void goSearch(final Intent gintent){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("lee","main Activity thread");
+
+                Log.d("abcTest","selected test lati2 = "+lati2);
+                Log.d("abcTest","selected test longti2 = "+longti2);
+                Log.d("abcTest","selected test dong = "+dong);
+
+                // set progressbar visible 20181129 rev
+
+
+                //rev 20180308
+                if(dong.equals("test") || dong==null || dong=="" || lati2==0.0f){
+
+                    Log.d("lee","setBackground Transparent in mainActivity");
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("abcTest","main Activity thread runOnUi");
+
+                            if(first) {
+                                Log.d("abcTest", "first in main Act");
+                                first = false;
+                                //timer.schedule(new MyTimerTask(), 10, 1 * 1000);
+
+                                v.setVisibility(View.VISIBLE);
+
+                            }
+
+/*                            if(count>6){
+                                Log.d("abcTest","count>6");
+                                //timer.cancel();
+                                //count=0;
+                                Log.d("abcTest","count>60, count = "+count+"first = "+first);
+                                notice(gintent);
+                            }*/
+
+                        }
+                    });
+
+/*                    mhandelr.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            //rev 20180728
+                            Log.d("lee","progress if in mainActi");
+                            if(first) {
+                                Log.d("lee", "first in main Act");
+                                first = false;
+                                timer.schedule(new MyTimerTask(), 10, 1 * 1000);
+                                View v = LayoutInflater.from(getApplicationContext()).inflate(R.layout.progress, null);
+                                setContentView(v);
+                            }
+
+                            if(count>6){
+                                timer.cancel();
+                                count=0;
+                                Log.d("abcTest","count>60, count = "+count+"first = "+first);
+                                notice(gintent);
+                            }
+                        }
+                    });*/
+
+                }else{
+                    v.setVisibility(View.GONE);
+                    timer.cancel();
+                    Log.d("abcTest","selected else lati2 = "+lati2);
+                    Log.d("abcTest","selected else longti2 = "+longti2);
+                    Log.d("abcTest","selected else dong = "+dong);
+//                    Intent intent = new Intent(MainActivity.this,TournamentActivity.class);
+//                    intent.putExtra("Toggles",setToggle);
+//                    intent.putExtra("TogMatch",menuTextMatch);
+                    startActivity(gintent);
+                }
+            }
+        }).start();
+
+        try{
+            Thread.sleep(1000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
+    }
+
+
+    class MyTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            count++;
+            Log.d("abcTest","tt in selecActi count = "+count);
+            goSearch(mintent);
+        }
+    }
+
+    // Method to show Progress bar
+    private void showProgressDialogWithTitle() {
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        //Without this user can hide loader by tapping outside screen
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    // Method to hide/ dismiss Progress bar
+    private void hideProgressDialogWithTitle() {
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.dismiss();
+    }
+
+
+    void notice(final Intent nintent){
+        AlertDialog.Builder mdialog = new AlertDialog.Builder(MainActivity.this);
+        Log.d("abcTest","selectedFoodActi Timer tt");
+        mdialog.setTitle("gps신호를 찾고있습니다.");
+        mdialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                timer = new Timer();
+                timer.schedule(new MyTimerTask(), 10, 1 * 1000);
+                Log.d("abcTest","재검색 확인, timer = "+timer);
+                goSearch(nintent);
+            }
+        });
+        mdialog.setNegativeButton("카테고리로 돌아가기", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+//                    moveTaskToBack(true);
+//                    finish();
+//                    android.os.Process.killProcess(android.os.Process.myPid());
+                Intent intentback = new Intent(MainActivity.this,MainActivity.class);
+                startActivity(intentback);
+            }
+        });
+        mdialog.show();
+
+    }
 
     /** 서비스 시작 및 Messenger 전달 */
     private void setStartService() {
         Log.d("abcTest","setStartService");
-
 
         startService(new Intent(MainActivity.this, GpsService.class));
         Log.d("abcTest","startService");
@@ -247,6 +395,8 @@ public class MainActivity extends NMapActivity {
 
     private void initMap(){
 
+        Log.d("lee","in initMap");
+
         // create map view
         mMapView = new NMapView(this);
 
@@ -255,6 +405,8 @@ public class MainActivity extends NMapActivity {
 
         // set data provider listener
         super.setMapDataProviderListener(onDataProviderListener);
+        Log.d("lee","setMapData 아래");
+
         // register listener for map state changes
         ///mMapView.setOnMapStateChangeListener(onMapViewStateChangeListener);
 
@@ -266,8 +418,10 @@ public class MainActivity extends NMapActivity {
 
         // location manager
         mMapLocationManager = new NMapLocationManager(this);
-        mMapLocationManager.enableMyLocation(true);
 
+        ///
+        mMapLocationManager.enableMyLocation(true);
+        Log.d("lee", "enableMyLocation");
         mMapLocationManager.setOnLocationChangeListener(onMyLocationChangeListener);
         ////
 
@@ -378,14 +532,8 @@ public class MainActivity extends NMapActivity {
             Log.d("abcTest","onMyLoc chan longti2 = "+longti2);
 
 
-
-            if(lati2!=0)
-            {
+                Log.d("abcTest", "onMyLoc chan find dong");
                 findPlacemarkAtLocation(longti2, lati2);
-                Log.d("abcTest","onMyLoc chan find dong");
-            }
-
-
             return true;
         }
 
@@ -458,17 +606,31 @@ public class MainActivity extends NMapActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d("abcTest","onDestroy");
+        Log.d("abcTest","onDestroy in Main");
+        mMapLocationManager.removeOnLocationChangeListener(onMyLocationChangeListener);
         setStopService();
         //stopService(new Intent(MainActivity.this, GpsService.class));
-        if(mdialog!=null)
-        mdialog.dismiss();
+        if(mDialog!=null)
+            mDialog.dismiss();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.d("abcTest","onPause");
+
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
+
+        if(mDialog != null && mDialog.isShowing()) {
+            mDialog.dismiss();
+            mDialog = null;
+        }
+
+        finish();
+
     }
 
 
@@ -503,6 +665,7 @@ public class MainActivity extends NMapActivity {
             Log.d("abcTest","req code = "+requestCode);
             Intent intentback = new Intent(MainActivity.this,MainActivity.class);
             startActivity(intentback);
+            finish();
         }
     }
 

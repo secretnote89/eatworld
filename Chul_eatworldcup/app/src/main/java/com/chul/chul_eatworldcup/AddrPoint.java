@@ -7,22 +7,22 @@ import java.lang.reflect.Constructor;
  */
 
 public class AddrPoint {
-    String addrx;
-    String addry;
+    Double addrx;
+    Double addry;
 
-    public String getAddrx() {
+    public Double getAddrx() {
         return addrx;
     }
 
-    public void setAddrx(String addrx) {
+    public void setAddrx(Double addrx) {
         this.addrx = addrx;
     }
 
-    public String getAddry() {
+    public Double getAddry() {
         return addry;
     }
 
-    public void setAddry(String addry) {
+    public void setAddry(Double addry) {
         this.addry = addry;
     }
 }

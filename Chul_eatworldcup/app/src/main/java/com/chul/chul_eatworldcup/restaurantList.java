@@ -10,8 +10,8 @@ public class restaurantList implements Serializable {
     private String resCategory;
     private String resPhonNum;
     private String resAddr;
-    private String resMapX;
-    private String resMapY;
+    private Double resMapX;
+    private Double resMapY;
 
     public String getResNM() {
         return resNM;
@@ -45,19 +45,19 @@ public class restaurantList implements Serializable {
         this.resAddr = resAddr;
     }
 
-    public String getResMapX() {
+    public Double getResMapX() {
         return resMapX;
     }
 
-    public void setResMapX(String resMapX) {
+    public void setResMapX(Double resMapX) {
         this.resMapX = resMapX;
     }
 
-    public String getResMapY() {
+    public Double getResMapY() {
         return resMapY;
     }
 
-    public void setResMapY(String resMapY) {
+    public void setResMapY(Double resMapY) {
         this.resMapY = resMapY;
     }
 

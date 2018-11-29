@@ -165,7 +165,7 @@ public class SplashActivity extends Activity {
         @Override
         protected void onPreExecute()
         {
-            Log.d("abcTest","here??");
+            Log.d("abcTest","onPreExecute??");
             super.onPreExecute();
         }
 
@@ -173,7 +173,7 @@ public class SplashActivity extends Activity {
         protected Void doInBackground(String...params)
         {
 
-            Log.d("abcTest","there??");
+            Log.d("abcTest","doInBackground??");
             TestSpalsh = "after";
             //Toast.makeText(getApplicationContext(),"Test",Toast.LENGTH_SHORT).show();
 
@@ -190,7 +190,7 @@ public class SplashActivity extends Activity {
         @Override
         protected void onPostExecute(Void result)
         {
-            Log.d("abcTest","real??");
+            Log.d("abcTest","onPostExecute??");
             super.onPostExecute(result);
 
 

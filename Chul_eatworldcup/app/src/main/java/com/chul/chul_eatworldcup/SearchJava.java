@@ -10,12 +10,16 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -26,6 +30,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static com.chul.chul_eatworldcup.MainActivity.dong;
 import static com.chul.chul_eatworldcup.MainActivity.si;
 
@@ -79,6 +84,7 @@ public class SearchJava extends Activity{
                     Intent intent = new Intent(SearchJava.this,restaurantResult.class);
                     intent.putExtra("resList",resList);
                     startActivity(intent);
+
                 }
 
                 runOnUiThread(new Runnable() {
@@ -234,11 +240,6 @@ public class SearchJava extends Activity{
                                 Log.d("abcTest","mapX = ? "+addrPoint.getAddrx());
                                 rList.setResMapY(addrPoint.getAddry());
                                 Log.d("abcTest","mapY = ? "+addrPoint.getAddry());
-
-                                if(addrPoint.getAddrx()!=null || addrPoint.getAddrx()!=""){
-                                        addrChk=true;
-                                }
-
                             }
 
 //                            else if(tag.equals("mapx")){
@@ -306,46 +307,75 @@ public class SearchJava extends Activity{
             }
             String inputLine = null;
             StringBuffer response = new StringBuffer();
-            Log.d("abcTest","br.readLine = ? "+br.readLine());
+
+            boolean jsonflag = false;
+
             while ((inputLine = br.readLine()) != null) {
-                response.append(inputLine.trim());
-                Log.d("abcTest","inputLine = ? "+inputLine);
-//                if(br.readLine().equals("x")){
-//                    Log.d("abcTest","x = ? "+br.readLine());
-//                    addrPoint.setAddrx(br.readLine());
-//                }else if(br.readLine().equals("y")){
-//                    Log.d("abcTest","y = ? "+br.readLine());
-//                    addrPoint.setAddry(br.readLine());
-//                }
+
+                Log.d("lee","inputline = "+inputLine);
+
+
+                if(jsonflag){
+                    response .append(inputLine);
+
+                    if(inputLine.contains("]")){
+                        jsonflag=false;
+                    }
+                }
+
+                if(inputLine.contains("\"items\":")){
+                    Log.d("lee","in items");
+                    jsonflag=true;
+                }
             }
             br.close();
-            result = "{"+response.toString();
-            //result = result.replace(" ","");
-            Log.d("abcTest","searchJava getAddr= "+result);
+            result = response.toString();
 
-            doJsonParser(result);
+            Log.d("abcTest","result before replace = "+result);
+            result = result.replace(" ","");
+            Log.d("abcTest","result after replace = "+result);
+            //result = result.substring(8);
+
+
+            addrPoint = doJsonParser(result);
 
         } catch (Exception e) {
             System.out.println(e);
         }
-    return addrPoint;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+    return addrPoint;
     }
 
-    void doJsonParser(String json) {
+    AddrPoint doJsonParser(String json) {
         String json_str = json;
-        Gson gson = new Gson();
+        AddrPoint addrPoint =new AddrPoint();
 
-//        JsonArray ja = gson.fromJson(json_str, JsonElement.class).getAsJsonArray();
-//        for(int i = 0; i < ja.size();i++){
-//            JsonObject market = ja.get(i).getAsJsonObject();
-//            System.out.println(market.get("symbol") + " : " + market);
-//        }
+        Log.d("bcTest","json_str = ? "+json);
 
-        JsonObject market = gson.fromJson(json_str,JsonElement.class).getAsJsonObject();
+        HashMap<Object,Object> map;
+        try {
+            map = new ObjectMapper().readValue(json_str, new TypeReference<HashMap<Object,Object>>(){});
+            Log.d("lee","map. object");
+            HashMap aL = (HashMap)map.get("point");
+            Log.d("lee","map. object.getpoint");
+            //HashMap<String, String> bL = (HashMap<String,String>)aL.get("x");
+            //HashMap<String, String> cL = (HashMap<String,String>)aL.get("y");
 
-       // HashMap map = (HashMap) market.get("items");
+            Double x = (Double)aL.get("x");
+            Log.d("lee","double x = "+x);
+            addrPoint.addrx = x;
 
 
+            Double y = (Double)aL.get("y");
+            Log.d("lee","double y = "+y);
+            addrPoint.addry = y;
+
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+
+    return addrPoint;
     }
 
 }
